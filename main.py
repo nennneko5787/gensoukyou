@@ -120,6 +120,13 @@ async def initialize(interaction: discord.Interaction):
 			mentionable=True,
 			reason="「幻想郷」ボットの /init コマンドのリクエストにより作成されました。 ※重複してロールが作成されることはありません。"
 		)
+	if discord.utils.get(interaction.guild.roles, name='魂魄妖夢') is None:
+		await interaction.guild.create_role(
+			name="魂魄妖夢",
+			color=discord.Colour.from_str("#727477"),
+			mentionable=True,
+			reason="「幻想郷」ボットの /init コマンドのリクエストにより作成されました。 ※重複してロールが作成されることはありません。"
+		)
 
 	embed = discord.Embed(
 		title="✅初期化に成功しました。",
@@ -145,6 +152,9 @@ async def on_message(message: discord.Message):
 				mentioned = True
 			if discord.utils.find(lambda r: r.name == 'フランドール・スカーレット', message.role_mentions) or discord.utils.find(lambda e: e.author.name == 'フランドール・スカーレット', message.embeds):
 				await asyncio.create_task(フランドール＿スカーレット(message))
+				mentioned = True
+			if discord.utils.find(lambda r: r.name == '魂魄妖夢', message.role_mentions) or discord.utils.find(lambda e: e.author.name == '魂魄妖夢', message.embeds):
+				await asyncio.create_task(魂魄妖夢(message))
 				mentioned = True
 
 			if mentioned == False:
@@ -226,6 +236,31 @@ async def フランドール＿スカーレット(message: discord.Message):
 			traceback_info = traceback.format_exc()
 			text = f"どうやらフランドール・スカーレットの機嫌が悪いらしい...\n```\n{traceback_info}\n```"
 			embed = discord.Embed(description=text,color=discord.Colour.from_str("#e8b177")).set_author(name="フランドール・スカーレット", icon_url="https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th060-070101.png")
+			await message.reply(text)
+	return
+
+async def 魂魄妖夢(message: discord.Message):
+	prompt = "あなたは、魂魄妖夢です。"\
+			f"私の名前は{message.author.display_name}です。私はあなたに「{message.clean_content}」と話しました。あなたは魂魄妖夢なので、魂魄妖夢のように出力してください。人と話すときと同じように出力してください。文法的に誤りのある文は認められません。"\
+			"返答にはMarkdown記法を使うことができます。"
+#	if message.type == discord.MessageType.reply:
+#		prompt = f"{prompt}また、私は、{message.reference.cached_message.author.display_name}さんの「{message.reference.cached_message.clean_content}」というメッセージに返信しています。"
+
+	if chat_rooms[message.author.id] == None:
+		# チャットを開始
+		chat_rooms[message.author.id] = model.start_chat(history=[])
+
+	async with message.channel.typing():
+		try:
+			# Gemini APIを使って応答を生成 (非同期で実行)
+			response = await asyncio.to_thread(chat_rooms[message.author.id].send_message, prompt)
+
+			embed = discord.Embed(title="",description=response.text,color=discord.Colour.from_str("#727477")).set_author(name="魂魄妖夢", icon_url="https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th070-050101.png")
+			await message.reply(embed=embed)
+		except:
+			traceback_info = traceback.format_exc()
+			text = f"どうやら魂魄妖夢の機嫌が悪いらしい...\n```\n{traceback_info}\n```"
+			embed = discord.Embed(description=text,color=discord.Colour.from_str("#727477")).set_author(name="魂魄妖夢", icon_url="https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th070-050101.png")
 			await message.reply(text)
 	return
 
