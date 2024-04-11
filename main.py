@@ -157,7 +157,7 @@ async def on_message(message: discord.Message):
 				await asyncio.create_task(魂魄妖夢(message))
 				mentioned = True
 
-			if mentioned == False:
+			if discord.utils.find(lambda r: r.id == 1226065401650352148, message.mentions) and mentioned == False:
 				embed = discord.Embed(
 					title="このボットの使い方",
 					description=f"{discord.utils.find(lambda r: r.name == '博麗霊夢', message.guild.roles).mention} や {discord.utils.find(lambda r: r.name == '霧雨魔理沙', message.guild.roles).mention} にメンションするだけ。"
