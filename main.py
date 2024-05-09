@@ -135,16 +135,16 @@ async def on_message(message: discord.Message):
 	if message.type == discord.MessageType.default or message.type == discord.MessageType.reply:
 		if message.author.bot == False:
 			mentioned = False
-			if discord.utils.find(lambda r: r.name == '博麗霊夢', message.role_mentions) or discord.utils.find(lambda e: e.author.name == '霧雨魔理沙', message.embeds):
+			if discord.utils.find(lambda r: r.name == '博麗霊夢', message.role_mentions) or discord.utils.find(lambda e: e.author.name == '霧雨魔理沙', message.reference.resolved.embeds):
 				await asyncio.create_task(博麗霊夢(message))
 				mentioned = True
-			if discord.utils.find(lambda r: r.name == '霧雨魔理沙', message.role_mentions) or discord.utils.find(lambda e: e.author.name == '霧雨魔理沙', message.embeds):
+			if discord.utils.find(lambda r: r.name == '霧雨魔理沙', message.role_mentions) or discord.utils.find(lambda e: e.author.name == '霧雨魔理沙', message.reference.resolved.embeds):
 				await asyncio.create_task(霧雨魔理沙(message))
 				mentioned = True
-			if discord.utils.find(lambda r: r.name == 'フランドール・スカーレット', message.role_mentions) or discord.utils.find(lambda e: e.author.name == 'フランドール・スカーレット', message.embeds):
+			if discord.utils.find(lambda r: r.name == 'フランドール・スカーレット', message.role_mentions) or discord.utils.find(lambda e: e.author.name == 'フランドール・スカーレット', message.reference.resolved.embeds):
 				await asyncio.create_task(フランドール＿スカーレット(message))
 				mentioned = True
-			if discord.utils.find(lambda r: r.name == '魂魄妖夢', message.role_mentions) or discord.utils.find(lambda e: e.author.name == '魂魄妖夢', message.embeds):
+			if discord.utils.find(lambda r: r.name == '魂魄妖夢', message.role_mentions) or discord.utils.find(lambda e: e.author.name == '魂魄妖夢', message.reference.resolved.embeds):
 				await asyncio.create_task(魂魄妖夢(message))
 				mentioned = True
 
