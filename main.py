@@ -6,14 +6,13 @@ from collections import defaultdict
 import random
 import asyncio
 import traceback
-from keep_alive import keep_alive
 
+# Load environment variables if available
 if os.path.isfile(".env"):
     from dotenv import load_dotenv
     load_dotenv(verbose=True)
 
-chat_rooms = defaultdict(lambda: None)
-
+# Configure the generative model
 genai.configure(api_key=os.getenv("gemini"))
 generation_config = {
     "temperature": 0.9,
@@ -21,90 +20,103 @@ generation_config = {
     "top_k": 1,
     "max_output_tokens": 2000,
 }
-
 safety_settings = [
     {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
     {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
     {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
     {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
 ]
-
 model = genai.GenerativeModel(
     model_name="gemini-pro",
     generation_config=generation_config,
     safety_settings=safety_settings,
 )
 
+# Initialize Discord client
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
-bot = commands.Bot(command_prefix="g!", intents=intents)
+bot = commands.Bot(command_prefix="/", intents=intents)
+chat_rooms = defaultdict(lambda: None)
+
 
 @bot.event
 async def on_ready():
-    bot.add_cog(RolesCog(bot))
+    await bot.change_presence(activity=discord.Game(name="/init"))
+    print(f"Bot is ready. Logged in as {bot.user}")
 
-class RolesCog(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
-        self.icon.start()
-        self.presence.start()
-
-    def cog_unload(self):
-        self.icon.cancel()
-        self.presence.cancel()
-
-    @tasks.loop(minutes=5)
-    async def icon(self):
-        png_files = self.get_png_files("./images/")
-        selected_file = random.choice(png_files)
-        with open(os.path.join("./images/", selected_file), 'rb') as f:
-            icon = f.read()
-        await self.bot.user.edit(avatar=icon)
-
-    @tasks.loop(seconds=20)
-    async def presence(self):
-        game = discord.Game(f"/init | {len(self.bot.guilds)} servers | {len(chat_rooms)} chat rooms")
-        await self.bot.change_presence(status=discord.Status.online, activity=game)
-
-    def get_png_files(self, directory):
-        png_files = [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f)) and f.endswith('.png')]
-        return png_files
-
-    @commands.hybrid_command(name="init", description="ボットを使える状態にするために初期化します。新しいキャラクターを使えるようにするためにも使用します。(既存のキャラクター、会話記録は消えません。)")
-    async def initialize(self, ctx):
-        # 初期化の処理
-        for role_name in ["博麗霊夢", "霧雨魔理沙", "フランドール・スカーレット", "魂魄妖夢"]:
-            if discord.utils.get(ctx.guild.roles, name=role_name) is None:
-                await ctx.guild.create_role(
-                    name=role_name,
-                    color=discord.Colour.from_str("#d03939"),
-                    mentionable=True,
-                    reason=f"「幻想郷」ボットの /init コマンドのリクエストにより作成されました。 ※重複してロールが作成されることはありません。"
-                )
-        await ctx.send("初期化に成功しました。")
-
-    @commands.hybrid_command(name="chat_clean", description="キャラクターとの会話履歴をリセットし、なかったことにします(???)")
-    async def chat_clean(self, ctx):
-        del chat_rooms[ctx.author.id]
-        await ctx.send("チャット履歴を削除しました。")
 
 @bot.event
-async def on_message(message: discord.Message):
+async def on_message(message):
     if message.author.bot:
         return
 
-    if message.type == discord.MessageType.default or message.type == discord.MessageType.reply:
-        await bot.process_commands(message)
+    mentioned_roles = [
+        role.name for role in message.role_mentions if role.name in ["霊夢", "魔理沙", "フランドール・スカーレット", "妖夢"]
+    ]
+    if mentioned_roles:
+        await handle_character_mention(message, mentioned_roles)
 
-@bot.event
-async def on_error(event, *args, **kwargs):
-    traceback_info = traceback.format_exc()
-    print(f"An error occurred in {event}: {traceback_info}")
 
-@bot.event
-async def on_disconnect():
-    await bot.close()
+async def handle_character_mention(message, mentioned_roles):
+    character_name = mentioned_roles[0]  # Assuming only one mentioned character
+    prompt = (
+        f"あなたは、{character_name}です。"
+        f"私の名前は{message.author.display_name}です。"
+        f"私はあなたに「{message.clean_content}」と話しました。"
+        f"あなたは{character_name}なので、{character_name}のように出力してください。"
+        "人と話すときと同じように出力してください。文法的に誤りのある文は認められません。"
+        "返答にはMarkdown記法を使うことができます。"
+    )
 
-keep_alive()
-bot.run(os.getenv("discord"))
+    if not chat_rooms[message.author.id]:
+        chat_rooms[message.author.id] = model.start_chat(history=[])
+
+    async with message.channel.typing():
+        try:
+            response = await asyncio.to_thread(
+                chat_rooms[message.author.id].send_message, prompt
+            )
+            embed_color = get_embed_color(character_name)
+            embed = discord.Embed(
+                title="",
+                description=response.text,
+                color=discord.Colour.from_str(embed_color),
+            ).set_author(
+                name=character_name, icon_url=get_character_icon_url(character_name)
+            )
+            await message.reply(embed=embed)
+        except Exception as e:
+            traceback_info = traceback.format_exc()
+            text = f"どうやら{character_name}の機嫌が悪いらしい...\n```\n{traceback_info}\n```"
+            embed = discord.Embed(
+                description=text,
+                color=discord.Colour.from_str(embed_color),
+            ).set_author(
+                name=character_name, icon_url=get_character_icon_url(character_name)
+            )
+            await message.reply(embed=embed)
+
+
+def get_embed_color(character_name):
+    colors = {
+        "霊夢": "#d03939",
+        "魔理沙": "#d8ce17",
+        "フラン": "#e8b177",
+        "妖夢": "#727477",
+    }
+    return colors.get(character_name, "#ffffff")
+
+
+def get_character_icon_url(character_name):
+    icon_urls = {
+        "霊夢": "https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th000-000101.png",
+        "魔理沙": "https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th000-000201.png",
+        "フランドール・スカーレット": "https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th060-070101.png",
+        "妖夢": "https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th070-050101.png",
+    }
+    return icon_urls.get(character_name, "")
+
+
+# Run the bot
+bot.run(os.getenv("DISCORD_TOKEN"))
