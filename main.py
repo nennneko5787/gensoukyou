@@ -81,15 +81,6 @@ async def presence():
 
 @tree.command(name="init", description="ボットを使える状態にするために初期化します。新しいキャラクターを使えるようにするためにも使用します。(既存のキャラクター、会話記録は消えません。)")
 async def initialize(interaction: discord.Interaction):
-	if interaction.user.guild_permissions.administrator is not True:
-		embed = discord.Embed(
-			title="あなたにはこのコマンドを実行する権限はありません！",
-			description="**このコマンドを実行するには以下の権限が必要です。**\n**管理者** *(ADMINISTRATOR)*",
-			color=discord.Color.red()
-		)
-		await interaction.response.send_message(embed=embed, ephemeral=True)
-		return
-	
 	if interaction.guild.me.guild_permissions.manage_roles is not True:
 		embed = discord.Embed(
 			title="ボットに必要な権限が足りません！",
