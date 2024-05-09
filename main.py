@@ -46,9 +46,14 @@ async def on_ready():
     print(f"Bot is ready. Logged in as {bot.user}")
 
 
-@bot.event
 async def on_message(message):
     if message.author.bot:
+        # Check if the message is from the bot
+        if message.embeds:
+            for embed in message.embeds:
+                if embed.author and embed.author.name in ["霊夢", "魔理沙", "フランドール・スカーレット", "妖夢"]:
+                    await handle_character_mention(message, [embed.author.name])
+                    break
         return
 
     mentioned_roles = [
