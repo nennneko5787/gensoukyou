@@ -210,10 +210,10 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
 			text = response.choices[0]["message"]["content"].strip()
 			chat_rooms[interaction.user.id].append(
 				{"role": "user", "content": prompt}
-			}
+			)
 			chat_rooms[interaction.user.id].append(
 				{"role": "assistant", "content": text}
-			}
+			)
 			embed = discord.Embed(title="", description=text, color=role_info["博麗霊夢"]['color'])
 			await message.reply(embed=embed)
 		except Exception as e:
