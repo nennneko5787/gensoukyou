@@ -18,49 +18,56 @@ chat_rooms = defaultdict(lambda: None)
 genai.configure(api_key=os.getenv("gemini"))
 # Set up the model
 generation_config = {
-  "temperature": 0.9,
-  "top_p": 1,
-  "top_k": 1,
-  "max_output_tokens": 2000,
+"temperature": 0.9,
+"top_p": 1,
+"top_k": 1,
+"max_output_tokens": 2000,
 }
 
 safety_settings = [
-  {
+{
 	"category": "HARM_CATEGORY_HARASSMENT",
 	"threshold": "BLOCK_NONE"
-  },
-  {
+},
+{
 	"category": "HARM_CATEGORY_HATE_SPEECH",
 	"threshold": "BLOCK_NONE"
-  },
-  {
+},
+{
 	"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
 	"threshold": "BLOCK_NONE"
-  },
-  {
+},
+{
 	"category": "HARM_CATEGORY_DANGEROUS_CONTENT",
 	"threshold": "BLOCK_NONE"
-  },
+},
 ]
 
 model = genai.GenerativeModel(model_name="gemini-pro",
-							  generation_config=generation_config,
-							  safety_settings=safety_settings)
+							generation_config=generation_config,
+							safety_settings=safety_settings)
 
-roles = [
-	"博麗霊夢",
-	"霧雨魔理沙",
-	"フランドール・スカーレット",
-	"魂魄妖夢",
-	"チルノ",
-]
-
-role_colors = {
-	"博麗霊夢": discord.Colour.from_rgb(208, 57, 57),
-	"霧雨魔理沙": discord.Colour.from_rgb(216, 206, 23),
-	"フランドール・スカーレット": discord.Colour.from_rgb(232, 177, 119),
-	"魂魄妖夢": discord.Colour.from_rgb(114, 116, 119),
-	"チルノ": discord.Colour.from_rgb(80, 161, 231),
+role_info = {
+    "博麗霊夢": {
+        "color": discord.Colour.from_rgb(208, 57, 57),
+        "icon": "https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th000-000101.png"
+    },
+    "霧雨魔理沙": {
+        "color": discord.Colour.from_rgb(216, 206, 23),
+        "icon": "https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th000-000201.png"
+    },
+    "フランドール・スカーレット": {
+        "color": discord.Colour.from_rgb(232, 177, 119),
+        "icon": "https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th060-070101.png"
+    },
+    "魂魄妖夢": {
+        "color": discord.Colour.from_rgb(114, 116, 119),
+        "icon": "https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th070-050101.png"
+    },
+    "チルノ": {
+        "color": discord.Colour.from_rgb(80, 161, 231),
+        "icon": "https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th060-020201.png"
+    },
 }
 
 intents = discord.Intents.default()
@@ -106,11 +113,11 @@ async def initialize(interaction: discord.Interaction):
 		await interaction.response.send_message(embed=embed, ephemeral=True)
 		return
 	
-	for role_info in roles:
-		if not discord.utils.get(interaction.guild.roles, name=role_info):
+	for name, data in role_info.items():
+		if not discord.utils.get(interaction.guild.roles, name=name):
 			await interaction.guild.create_role(
 				name=role_info,
-				color=role_colors[role_info],
+				color=data["color"],
 				mentionable=True,
 				reason=f"「幻想郷」ボットの初期化により作成されました。"
 			)
@@ -127,31 +134,32 @@ async def chat_clean(interaction: discord.Interaction):
 	await interaction.response.send_message("チャット履歴を削除しました。", ephemeral=True)
 
 async def handle_message(message: discord.Message, role_name: str):
-    prompt = f"あなたは、{role_name}です。"\
-             f"私の名前は{message.author.display_name}です。"\
-             f"私はあなたに「{message.clean_content}」と話しました。"\
-             f"あなたは{role_name}なので、{role_name}のように出力してください。"\
-             "人と話すときと同じように出力してください。文法的に誤りのある文は認められません。"\
-             "返答にはMarkdown記法を使うことができます。"
+	prompt = f"あなたは、{role_name}です。"\
+			f"私の名前は{message.author.display_name}です。"\
+			f"私はあなたに「{message.clean_content}」と話しました。"\
+			f"あなたは{role_name}なので、{role_name}のように出力してください。"\
+			"人と話すときと同じように出力してください。文法的に誤りのある文は認められません。"\
+			"返答にはMarkdown記法を使うことができます。"
 
-    if chat_rooms[message.author.id] is None:
-        # チャットを開始
-        chat_rooms[message.author.id] = model.start_chat(history=[])
+	if chat_rooms[message.author.id] is None:
+		# チャットを開始
+		chat_rooms[message.author.id] = model.start_chat(history=[])
 
-    async with message.channel.typing():
-        try:
-            # Gemini APIを使って応答を生成 (非同期で実行)
-            response = await asyncio.to_thread(chat_rooms[message.author.id].send_message, prompt)
+	async with message.channel.typing():
+		try:
+			# Gemini APIを使って応答を生成 (非同期で実行)
+			response = await asyncio.to_thread(chat_rooms[message.author.id].send_message, prompt)
 
-            embed = discord.Embed(title="", description=response.text, color=discord.Colour.from_str("#d03939"))
-            embed.set_author(name=role_name, icon_url=f"https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th000-000101.png")
-            await message.reply(embed=embed)
-        except:
-            traceback_info = traceback.format_exc()
-            text = f"どうやら{role_name}の機嫌が悪いらしい...\n```\n{traceback_info}\n```"
-            embed = discord.Embed(description=text, color=discord.Colour.from_str("#d03939"))
-            embed.set_author(name=role_name, icon_url=f"https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th000-000101.png")
-            await message.reply(text)
+			embed = discord.Embed(title="", description=response.text, color=role_info[role_name]["color"])
+			embed.set_author(name=role_name, icon_url=role_info[role_name]["icon"])
+			await message.reply(embed=embed)
+		except Exception as e:
+			# traceback_info = traceback.format_exc()
+			traceback.print_exception()
+			text = f"どうやら{role_name}の機嫌が悪いらしい...\n```\n{e}\n```"
+			embed = discord.Embed(description=text, color=role_info[role_name]["color"])
+			embed.set_author(name=role_name, icon_url=role_info[role_name]["icon"])
+			await message.reply(text)
 
 @client.event
 async def on_message(message: discord.Message):
@@ -159,10 +167,10 @@ async def on_message(message: discord.Message):
 		return
 
 	for role in message.role_mentions:
-		if role.name in roles:
+		if role.name in role_info.keys():
 			await handle_message(message, role.name)
 
-	if message.embeds[0].author.name in roles:
+	if message.embeds[0].author.name in role_info.keys():
 		await handle_message(message, message.embeds[0].author.name)
 
 keep_alive()
