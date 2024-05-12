@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import tasks
 import os
-import openai
+from openai import AsyncOpenAI
 from collections import defaultdict
 import random
 import asyncio
@@ -17,9 +17,11 @@ if os.path.isfile(".env"):
 	from dotenv import load_dotenv
 	load_dotenv(verbose=True)
 
-openai.api_key = os.getenv("openai")
-openai.base_url = "https://api.pawan.krd/v1/"
-
+oclient = AsyncOpenAI(
+    # This is the default and can be omitted
+    api_key=os.getenv("openai"),
+				base_url = "https://api.pawan.krd/v1/"
+)
 
 role_info = {
 	"": {
@@ -165,7 +167,7 @@ async def handle_message(message: discord.Message, role_name: str):
 
 	async with message.channel.typing():
 		try:
-			response = await openai.ChatCompletion.acreate(
+			response = await oclient.chat.completions.create(
 	   model="gpt-3.5-turbo",
 	   messages=chat_rooms[message.author.id]
 			)
@@ -203,7 +205,7 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
 
 	async with message.channel.typing():
 		try:
-			response = await openai.ChatCompletion.acreate(
+			response = await oclient.chat.completions.create(
 	   model="gpt-3.5-turbo",
 	   messages=chat_rooms[message.author.id]
 			)
