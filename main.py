@@ -165,11 +165,19 @@ async def characters(interaction: discord.Interaction):
 	await interaction.response.defer()
 	text = ""
 	for name, data in role_info.items():
+		if name == "":
+			continue
 		role: discord.Role = discord.utils.get(interaction.guild.roles, name=name)
 		if not role:
 			text = f"{text}\n{name} - **/init コマンドを使用して有効化してください**" if text != "" else f"{name} - **/init コマンドを使用して有効化してください**"
 		else:
 			text = f"{text}\n{role.mention} - **使用可能です**" if text != "" else f"{name} - **/init コマンドを使用して有効化してください**"
+	embed = discord.Embed(
+		title="キャラクター一覧",
+		description=text,
+		color=discord.Color.blue()
+	)
+	await interaction.followup.send(embed=embed)
 
 async def handle_message(message: discord.Message, role_name: str):
 	prompt = f"あなたは、幻想郷に住んでいる、{role_name}です。"\
