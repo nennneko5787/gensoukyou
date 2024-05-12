@@ -172,10 +172,10 @@ async def handle_message(message: discord.Message, role_name: str):
 			text = response.choices[0]["message"]["content"].strip()
 			chat_rooms[interaction.user.id].append(
 				{"role": "user", "content": prompt}
-			}
+			)
 			chat_rooms[interaction.user.id].append(
 				{"role": "assistant", "content": text}
-			}
+			)
 
 			embed = discord.Embed(title="", description=text, color=role_info[role_name]['color'])
 			embed.set_author(name=role_name, icon_url=role_info[role_name]["icon"])
