@@ -49,31 +49,31 @@ model = genai.GenerativeModel(model_name="gemini-pro",
 
 role_info = {
 	"": {
-        "color": discord.Colour.from_rgb(208, 57, 57),
+        'color': discord.Colour.from_rgb(208, 57, 57),
         "icon": ""
 	},
     "博麗霊夢": {
-        "color": discord.Colour.from_rgb(208, 57, 57),
+        'color': discord.Colour.from_rgb(208, 57, 57),
         "icon": "https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th000-000101.png"
     },
     "霧雨魔理沙": {
-        "color": discord.Colour.from_rgb(216, 206, 23),
+        'color': discord.Colour.from_rgb(216, 206, 23),
         "icon": "https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th000-000201.png"
     },
     "フランドール・スカーレット": {
-        "color": discord.Colour.from_rgb(232, 177, 119),
+        'color': discord.Colour.from_rgb(232, 177, 119),
         "icon": "https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th060-070101.png"
     },
     "レミリア・スカーレット": {
-        "color": discord.Colour.from_rgb(111, 124, 185),
+        'color': discord.Colour.from_rgb(111, 124, 185),
         "icon": "https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th060-060101.png"
     },
     "魂魄妖夢": {
-        "color": discord.Colour.from_rgb(114, 116, 119),
+        'color': discord.Colour.from_rgb(114, 116, 119),
         "icon": "https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th070-050101.png"
     },
     "チルノ": {
-        "color": discord.Colour.from_rgb(80, 161, 231),
+        'color': discord.Colour.from_rgb(80, 161, 231),
         "icon": "https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th060-020201.png"
     },
 }
@@ -132,15 +132,15 @@ async def initialize(interaction: discord.Interaction):
 		if not role:
 			await interaction.guild.create_role(
 				name=role_info,
-				color=data["color"],
+				color=data['color'],
 				mentionable=True,
 				reason=f"「幻想郷」ボットの初期化により作成されました。"
 			)
 			log = f"{log}\nロール「{name}」が作成されました。" if log != "" else f"ロール「{name}」が作成されました。"
 		else:
-			if role.color != data["color"]:
-				await role.edit(color=data["color"])
-				log = f"{log}\nロール「{name}」の色が「{rgb_to_hex(data["color"].r, data["color"].g, data["color"].b)}」に更新されました。" if log != "" else f"{log}\nロール「{name}」の色が「{rgb_to_hex(data["color"].r, data["color"].g, data["color"].b)}」に更新されました。"
+			if role.color != data['color']:
+				await role.edit(color=data['color'])
+				log = f"{log}\nロール「{name}」の色が「{rgb_to_hex(data['color'].r, data['color'].g, data['color'].b)}」に更新されました。" if log != "" else f"{log}\nロール「{name}」の色が「{rgb_to_hex(data['color'].r, data['color'].g, data['color'].b)}」に更新されました。"
 
 	embed = discord.Embed(
 		title="✅初期化に成功しました。",
@@ -182,14 +182,14 @@ async def handle_message(message: discord.Message, role_name: str):
 			# Gemini APIを使って応答を生成 (非同期で実行)
 			response = await asyncio.to_thread(chat_rooms[message.author.id].send_message, prompt)
 
-			embed = discord.Embed(title="", description=response.text, color=role_info[role_name]["color"])
+			embed = discord.Embed(title="", description=response.text, color=role_info[role_name]['color'])
 			embed.set_author(name=role_name, icon_url=role_info[role_name]["icon"])
 			await message.reply(embed=embed)
 		except Exception as e:
 			# traceback_info = traceback.format_exc()
 			traceback.print_exception()
 			text = f"どうやら{role_name}の機嫌が悪いらしい...\n```\n{e}\n```"
-			embed = discord.Embed(description=text, color=role_info[role_name]["color"])
+			embed = discord.Embed(description=text, color=role_info[role_name]['color'])
 			embed.set_author(name=role_name, icon_url=role_info[role_name]["icon"])
 			await message.reply(text)
 
