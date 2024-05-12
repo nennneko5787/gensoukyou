@@ -11,11 +11,11 @@ from keep_alive import keep_alive
 import signal
 import sys
 
+chat_rooms = defaultdict(lambda: None)
+
 if os.path.isfile(".env"):
 	from dotenv import load_dotenv
 	load_dotenv(verbose=True)
-
-chat_rooms = defaultdict(lambda: None)
 
 genai.configure(api_key=os.getenv("gemini"))
 # Set up the model
@@ -256,11 +256,15 @@ async def on_message(message: discord.Message):
 		if len(message.role_mentions) == count:
 			await handle_message_fukusuu(message, "、".join(role_names))
 
-	if len(message.embeds) >= 1:
-		if message.embeds[0].author.name in role_info.keys():
-			await handle_message(message, message.embeds[0].author.name)
+	if message.reference is not None:
+		if message.reference.resolved is not None:
+			if message.reference.resolved.author.id == 1226065401650352148:
+				if len(message.reference.resolved.embeds) >= 1:
+					print(message.reference.resolved.embeds[0].author.name)
+					if message.reference.resolved.embeds[0].author.name in list(role_info.keys()):
+						await handle_message(message, message.reference.resolved.embeds[0].author.name)
 
-def sigterm_handler(signum, frame):
+async def sigterm_handler():
 	print("Received SIGTERM, exiting gracefully")
 	sys.exit(0)
 
