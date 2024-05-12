@@ -108,7 +108,7 @@ async def initialize(interaction: discord.Interaction):
 	
 	for role_info in roles:
 		if not discord.utils.get(interaction.guild.roles, name=role_info):
-			await client.guild.create_role(
+			await interaction.guild.create_role(
 				name=role_info,
 				color=role_colors[role_info],
 				mentionable=True,
