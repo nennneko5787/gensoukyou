@@ -168,7 +168,7 @@ async def handle_message(message: discord.Message, role_name: str):
 	async with message.channel.typing():
 		try:
 			response = await oclient.chat.completions.create(
-	   model="gpt-3.5-turbo",
+	   model="pai-001",
 	   messages=chat_rooms[message.author.id]
 			)
 			text = response.choices[0]["message"]["content"].strip()
@@ -206,7 +206,7 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
 	async with message.channel.typing():
 		try:
 			response = await oclient.chat.completions.create(
-	   model="gpt-3.5-turbo",
+	   model="pai-001",
 	   messages=chat_rooms[message.author.id]
 			)
 			text = response.choices[0]["message"]["content"].strip()
@@ -251,7 +251,7 @@ async def on_message(message: discord.Message):
 					if message.reference.resolved.embeds[0].author.name in list(role_info.keys()):
 						await handle_message(message, message.reference.resolved.embeds[0].author.name)
 
-async def sigterm_handler(a,b):
+def sigterm_handler(a,b):
 	print("Received SIGTERM, exiting gracefully")
 	sys.exit(0)
 
