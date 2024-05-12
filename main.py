@@ -130,6 +130,8 @@ async def initialize(interaction: discord.Interaction):
     log = ""
 
     for name, data in role_info.items():
+		if name == "":
+			continue
         role: discord.Role = discord.utils.get(interaction.guild.roles, name=name)
         if not role:
             color_value = data["color"].value  # Get the integer value of the color
