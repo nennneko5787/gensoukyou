@@ -120,6 +120,7 @@ async def initialize(interaction: discord.Interaction):
 		await interaction.response.send_message(embed=embed, ephemeral=True)
 		return
 	
+	await interaction.response.defer()
 	log = ""
 
 	for name, data in role_info.items():
@@ -139,15 +140,26 @@ async def initialize(interaction: discord.Interaction):
 
 	embed = discord.Embed(
 		title="✅初期化に成功しました。",
-		description=f"```\n{log}\n```"
-		color=discord.Color.green()
+		description=f"```\n{log}\n```",
+		color=discord.Color.green(),
 	)
-	await interaction.response.send_message(embed=embed)
+	await interaction.followup.send(embed=embed)
 
 @tree.command(name="chat_clean", description="キャラクターとの会話履歴をリセットし、なかったことにします(???)")
 async def chat_clean(interaction: discord.Interaction):
 	del chat_rooms[interaction.user.id]
 	await interaction.response.send_message("チャット履歴を削除しました。", ephemeral=True)
+
+@tree.command(name="characters", description="キャラクターの一覧を確認できます")
+async def characters(interaction: discord.Interaction):
+	await interaction.response.defer()
+	text = ""
+	for name, data in role_info.items():
+		role: discord.Role = discord.utils.get(interaction.guild.roles, name=name)
+		if not role:
+			text = f"{text}\n{name} - **/init コマンドを使用して有効化してください**" if text != "" else f"{name} - **/init コマンドを使用して有効化してください**"
+		else:
+			text = f"{text}\n{role.mention} - **使用可能です**" if text != "" else f"{name} - **/init コマンドを使用して有効化してください**"
 
 async def handle_message(message: discord.Message, role_name: str):
 	prompt = f"あなたは、幻想郷に住んでいる、{role_name}です。"\
