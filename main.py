@@ -46,7 +46,7 @@ safety_settings = [
 ]
 
 model = genai.GenerativeModel(model_name="gemini-pro",
-							generation_config=generation_config,
+							#generation_config=generation_config,
 							safety_settings=safety_settings)
 
 role_info = {
@@ -71,7 +71,7 @@ role_info = {
 		"icon": "https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th060-060101.png"
 	},
 	"魂魄妖夢": {
-		'color': discord.Colour.from_rgb(114, 116, 119),
+		'color': discord.Colour.from_rgb(226, 227, 230),
 		"icon": "https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th070-050101.png"
 	},
 	"チルノ": {
@@ -198,9 +198,9 @@ async def handle_message(message: discord.Message, role_name: str):
 	async with message.channel.typing():
 		try:
 			# Gemini APIを使って応答を生成 (非同期で実行)
-			response = await asyncio.to_thread(chat_rooms[message.author.id].send_message, prompt)
+			response = await asyncio.to_thread(chat_rooms[message.author.id].send_message, prompt, safety_settings=safety_settings)
 
-			embed = discord.Embed(title="", description=response.text, color=role_info[role_name]['color'])
+			embed = discord.Embed(title="", description=response.candidates[0].content.parts[0].text, color=role_info[role_name]['color'])
 			embed.set_author(name=role_name, icon_url=role_info[role_name]["icon"])
 			await message.reply(embed=embed)
 		except Exception as e:
