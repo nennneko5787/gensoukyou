@@ -211,6 +211,33 @@ async def handle_message(message: discord.Message, role_name: str):
 			embed.set_author(name=role_name, icon_url=role_info[role_name]["icon"])
 			await message.reply(text)
 
+async def handle_message_fukusuu(message: discord.Message, role_name: str):
+	prompt = f"あなた達は、幻想郷に住んでいる、{role_name}です。"\
+			f"私の名前は{message.author.display_name}です。"\
+			f"私はあなた達に「{message.clean_content}」と話しました。"\
+			f"あなたは{role_name}なので、{role_name}のように出力してください。"\
+			"<人名>「<内容>」 という感じに出力してください。"\
+			"人と話すときと同じように出力してください。文法的に誤りのある文は認められません。"\
+			"返答にはMarkdown記法を使うことができます。"
+
+	if chat_rooms[message.author.id] is None:
+		# チャットを開始
+		chat_rooms[message.author.id] = model.start_chat(history=[])
+
+	async with message.channel.typing():
+		try:
+			# Gemini APIを使って応答を生成 (非同期で実行)
+			response = await asyncio.to_thread(chat_rooms[message.author.id].send_message, prompt, safety_settings=safety_settings)
+
+			embed = discord.Embed(title="", description=response.candidates[0].content.parts[0].text, color=role_info["博霊霊夢"]['color'])
+			await message.reply(embed=embed)
+		except Exception as e:
+			# traceback_info = traceback.format_exc()
+			traceback.print_exception(e)
+			text = f"どうやら{role_name}の機嫌が悪いらしい...\n```\n{e}\n```"
+			embed = discord.Embed(description=text, color=role_info["博麗霊夢"]['color'])
+			await message.reply(text)
+
 @client.event
 async def on_message(message: discord.Message):
 	if message.author.bot or message.type not in (discord.MessageType.default, discord.MessageType.reply):
@@ -221,11 +248,13 @@ async def on_message(message: discord.Message):
 			await handle_message(message, message.role_mentions[0].name)
 	elif len(message.role_mentions) >= 2:
 		count = 0
+		role_names = []
 		for role in message.role_mentions:
 			if role.name in role_info.keys():
 				count += 1
+				role_names.append(role.name)
 		if len(message.role_mentions) == count:
-			await handle_message(message, "")
+			await handle_message_fukusuu(message, "、".join(role_names))
 
 	if len(message.embeds) >= 1:
 		if message.embeds[0].author.name in role_info.keys():
