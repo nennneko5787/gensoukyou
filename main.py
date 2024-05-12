@@ -155,15 +155,12 @@ async def handle_message(message: discord.Message, role_name: str):
 
 @client.event
 async def on_message(message: discord.Message):
-    if message.author.bot or message.type not in (discord.MessageType.default, discord.MessageType.reply):
-        return
+	if message.author.bot or message.type not in (discord.MessageType.default, discord.MessageType.reply):
+		return
 
-    mentioned_roles = [role for role_name, role in roles if discord.utils.find(lambda r: r.name == role, message.role_mentions)]
-    if not mentioned_roles:
-        return
-
-    for role_name in mentioned_roles:
-        await handle_message(message, role_name)
+	for role in message.role_mentions:
+		if role.name in roles:
+			await handle_message(message, role.name)
 
 keep_alive()
 client.run(os.getenv("discord"))
