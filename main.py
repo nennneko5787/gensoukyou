@@ -216,7 +216,7 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
 			f"私の名前は{message.author.display_name}です。"\
 			f"私はあなた達に「{message.clean_content}」と話しました。"\
 			f"あなたは{role_name}なので、{role_name}のように出力してください。"\
-			"<人名>「<内容>」 という感じに出力してください。"\
+			"**<人名>**:\n> <内容> という感じに出力してください。"\
 			"人と話すときと同じように出力してください。文法的に誤りのある文は認められません。"\
 			"返答にはMarkdown記法を使うことができます。"
 
@@ -229,7 +229,7 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
 			# Gemini APIを使って応答を生成 (非同期で実行)
 			response = await asyncio.to_thread(chat_rooms[message.author.id].send_message, prompt, safety_settings=safety_settings)
 
-			embed = discord.Embed(title="", description=response.candidates[0].content.parts[0].text, color=role_info["博霊霊夢"]['color'])
+			embed = discord.Embed(title="", description=response.candidates[0].content.parts[0].text, color=role_info["博麗霊夢"]['color'])
 			await message.reply(embed=embed)
 		except Exception as e:
 			# traceback_info = traceback.format_exc()
