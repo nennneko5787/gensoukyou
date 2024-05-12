@@ -11,7 +11,7 @@ from keep_alive import keep_alive
 import signal
 import sys
 
-	chat_rooms = defaultdict(list)
+chat_rooms = defaultdict(list)
 
 if os.path.isfile(".env"):
 	from dotenv import load_dotenv
