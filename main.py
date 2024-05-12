@@ -171,7 +171,7 @@ async def handle_message(message: discord.Message, role_name: str):
 	   model="pai-001",
 	   messages=chat_rooms[message.author.id]
 			)
-			text = response.choices[0]["message"]["content"].strip()
+			text = response.choices[0].text.strip()
 			chat_rooms[message.author.id].append(
 				{"role": "user", "content": prompt}
 			)
@@ -209,7 +209,7 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
 	   model="pai-001",
 	   messages=chat_rooms[message.author.id]
 			)
-			text = response.choices[0]["message"]["content"].strip()
+			text = response.choices[0].text.strip()
 			chat_rooms[message.author.id].append(
 				{"role": "user", "content": prompt}
 			)
