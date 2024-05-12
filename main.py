@@ -48,6 +48,10 @@ model = genai.GenerativeModel(model_name="gemini-pro",
 							safety_settings=safety_settings)
 
 role_info = {
+	"": {
+        "color": discord.Colour.from_rgb(208, 57, 57),
+        "icon": ""
+	},
     "博麗霊夢": {
         "color": discord.Colour.from_rgb(208, 57, 57),
         "icon": "https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th000-000101.png"
@@ -194,9 +198,16 @@ async def on_message(message: discord.Message):
 	if message.author.bot or message.type not in (discord.MessageType.default, discord.MessageType.reply):
 		return
 
-	for role in message.role_mentions:
-		if role.name in role_info.keys():
-			await handle_message(message, role.name)
+	if len(message.role_mentions) == 1:
+		if message.role_mentions[0].name in role_info.keys():
+			await handle_message(message, message.role_mentions[0].name)
+	elif len(message.role_mentions) >= 2:
+		count = 0
+		for role in message.role_mentions:
+			if role.name in role_info.keys():
+				count += 1
+		if len(message.role_mentions) == count:
+			await handle_message(message, "")
 
 	if len(message.embeds) >= 1:
 		if message.embeds[0].author.name in role_info.keys():
