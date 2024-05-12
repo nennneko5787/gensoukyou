@@ -167,13 +167,13 @@ async def handle_message(message: discord.Message, role_name: str):
 		try:
 			response = await openai.ChatCompletion.acreate(
 	   model="gpt-3.5-turbo",
-	   messages=chat_rooms[interaction.user.id]
+	   messages=chat_rooms[message.author.id]
 			)
 			text = response.choices[0]["message"]["content"].strip()
-			chat_rooms[interaction.user.id].append(
+			chat_rooms[message.author.id].append(
 				{"role": "user", "content": prompt}
 			)
-			chat_rooms[interaction.user.id].append(
+			chat_rooms[message.author.id].append(
 				{"role": "assistant", "content": text}
 			)
 
@@ -205,13 +205,13 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
 		try:
 			response = await openai.ChatCompletion.acreate(
 	   model="gpt-3.5-turbo",
-	   messages=chat_rooms[interaction.user.id]
+	   messages=chat_rooms[message.author.id]
 			)
 			text = response.choices[0]["message"]["content"].strip()
-			chat_rooms[interaction.user.id].append(
+			chat_rooms[message.author.id].append(
 				{"role": "user", "content": prompt}
 			)
-			chat_rooms[interaction.user.id].append(
+			chat_rooms[message.author.id].append(
 				{"role": "assistant", "content": text}
 			)
 			embed = discord.Embed(title="", description=text, color=role_info["博麗霊夢"]['color'])
