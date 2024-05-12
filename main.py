@@ -249,7 +249,7 @@ async def on_message(message: discord.Message):
 					if message.reference.resolved.embeds[0].author.name in list(role_info.keys()):
 						await handle_message(message, message.reference.resolved.embeds[0].author.name)
 
-async def sigterm_handler():
+async def sigterm_handler(a,b):
 	print("Received SIGTERM, exiting gracefully")
 	sys.exit(0)
 
