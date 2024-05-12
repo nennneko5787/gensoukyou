@@ -20,10 +20,10 @@ chat_rooms = defaultdict(lambda: None)
 genai.configure(api_key=os.getenv("gemini"))
 # Set up the model
 generation_config = {
-"temperature": 0.9,
-"top_p": 1,
-"top_k": 1,
-"max_output_tokens": 2000,
+	"temperature": 0.9,
+	"top_p": 1,
+	"top_k": 1,
+	"max_output_tokens": 2000,
 }
 
 safety_settings = [
@@ -45,8 +45,8 @@ safety_settings = [
 },
 ]
 
-model = genai.GenerativeModel(model_name="gemini-pro",
-							#generation_config=generation_config,
+model = genai.GenerativeModel(model_name="gemini-1.5-pro-latest",
+							generation_config=generation_config,
 							safety_settings=safety_settings)
 
 role_info = {
