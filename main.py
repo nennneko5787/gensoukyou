@@ -11,7 +11,7 @@ from keep_alive import keep_alive
 import signal
 import sys
 
-chat_rooms = defaultdict(list)
+	chat_rooms = defaultdict(list)
 
 if os.path.isfile(".env"):
 	from dotenv import load_dotenv
@@ -163,16 +163,21 @@ async def handle_message(message: discord.Message, role_name: str):
 			"人と話すときと同じように出力してください。文法的に誤りのある文は認められません。"\
 			"返答にはMarkdown記法を使うことができます。"
 
-	if chat_rooms[message.author.id] is None:
-		# チャットを開始
-		chat_rooms[message.author.id] = model.start_chat(history=[])
-
 	async with message.channel.typing():
 		try:
-			# Gemini APIを使って応答を生成 (非同期で実行)
-			response = await asyncio.to_thread(chat_rooms[message.author.id].send_message, prompt, safety_settings=safety_settings)
+			response = await openai.ChatCompletion.acreate(
+	   model="gpt-3.5-turbo",
+	   messages=chat_rooms[interaction.user.id]
+			)
+			text = response.choices[0]["message"]["content"].strip()
+			chat_rooms[interaction.user.id].append(
+				{"role": "user", "content": prompt}
+			}
+			chat_rooms[interaction.user.id].append(
+				{"role": "assistant", "content": text}
+			}
 
-			embed = discord.Embed(title="", description=response.candidates[0].content.parts[0].text, color=role_info[role_name]['color'])
+			embed = discord.Embed(title="", description=text, color=role_info[role_name]['color'])
 			embed.set_author(name=role_name, icon_url=role_info[role_name]["icon"])
 			await message.reply(embed=embed)
 		except Exception as e:
@@ -198,10 +203,18 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
 
 	async with message.channel.typing():
 		try:
-			# Gemini APIを使って応答を生成 (非同期で実行)
-			response = await asyncio.to_thread(chat_rooms[message.author.id].send_message, prompt, safety_settings=safety_settings)
-
-			embed = discord.Embed(title="", description=response.candidates[0].content.parts[0].text, color=role_info["博麗霊夢"]['color'])
+			response = await openai.ChatCompletion.acreate(
+	   model="gpt-3.5-turbo",
+	   messages=chat_rooms[interaction.user.id]
+			)
+			text = response.choices[0]["message"]["content"].strip()
+			chat_rooms[interaction.user.id].append(
+				{"role": "user", "content": prompt}
+			}
+			chat_rooms[interaction.user.id].append(
+				{"role": "assistant", "content": text}
+			}
+			embed = discord.Embed(title="", description=text, color=role_info["博麗霊夢"]['color'])
 			await message.reply(embed=embed)
 		except Exception as e:
 			# traceback_info = traceback.format_exc()
