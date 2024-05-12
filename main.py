@@ -60,6 +60,10 @@ role_info = {
         "color": discord.Colour.from_rgb(232, 177, 119),
         "icon": "https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th060-070101.png"
     },
+    "レミリア・スカーレット": {
+        "color": discord.Colour.from_rgb(111, 124, 185),
+        "icon": "https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th060-060101.png"
+    },
     "魂魄妖夢": {
         "color": discord.Colour.from_rgb(114, 116, 119),
         "icon": "https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th070-050101.png"
@@ -102,6 +106,9 @@ async def presence():
 	game = discord.Game(f"/init | {len(client.guilds)} servers | {len(chat_rooms)} chat rooms")
 	await client.change_presence(status=discord.Status.online, activity=game)
 
+def rgb_to_hex(r,g,b):
+    return '#{:02x}{:02x}{:02x}'.format(r,g,b)
+
 @tree.command(name="init", description="ボットを使える状態にするために初期化します。新しいキャラクターを使えるようにするためにも使用します。(既存のキャラクター、会話記録は消えません。)")
 async def initialize(interaction: discord.Interaction):
 	if interaction.guild.me.guild_permissions.manage_roles is not True:
@@ -113,17 +120,26 @@ async def initialize(interaction: discord.Interaction):
 		await interaction.response.send_message(embed=embed, ephemeral=True)
 		return
 	
+	log = ""
+
 	for name, data in role_info.items():
-		if not discord.utils.get(interaction.guild.roles, name=name):
+		role: discord.Role = discord.utils.get(interaction.guild.roles, name=name)
+		if not role:
 			await interaction.guild.create_role(
 				name=role_info,
 				color=data["color"],
 				mentionable=True,
 				reason=f"「幻想郷」ボットの初期化により作成されました。"
 			)
+			log = f"{log}\nロール「{name}」が作成されました。" if log != "" else f"ロール「{name}」が作成されました。"
+		else:
+			if role.color != data["color"]:
+				await role.edit(color=data["color"])
+				log = f"{log}\nロール「{name}」の色が「{rgb_to_hex(data["color"].r, data["color"].g, data["color"].b)}」に更新されました。" if log != "" else f"{log}\nロール「{name}」の色が「{rgb_to_hex(data["color"].r, data["color"].g, data["color"].b)}」に更新されました。"
 
 	embed = discord.Embed(
 		title="✅初期化に成功しました。",
+		description=f"```\n{log}\n```"
 		color=discord.Color.green()
 	)
 	await interaction.response.send_message(embed=embed)
@@ -134,7 +150,7 @@ async def chat_clean(interaction: discord.Interaction):
 	await interaction.response.send_message("チャット履歴を削除しました。", ephemeral=True)
 
 async def handle_message(message: discord.Message, role_name: str):
-	prompt = f"あなたは、{role_name}です。"\
+	prompt = f"あなたは、幻想郷に住んでいる、{role_name}です。"\
 			f"私の名前は{message.author.display_name}です。"\
 			f"私はあなたに「{message.clean_content}」と話しました。"\
 			f"あなたは{role_name}なので、{role_name}のように出力してください。"\
