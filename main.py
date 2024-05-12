@@ -162,5 +162,8 @@ async def on_message(message: discord.Message):
 		if role.name in roles:
 			await handle_message(message, role.name)
 
+	if message.embeds[0].author.name in roles:
+		await handle_message(message, message.embeds[0].author.name)
+
 keep_alive()
 client.run(os.getenv("discord"))
