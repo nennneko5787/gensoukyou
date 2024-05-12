@@ -134,14 +134,14 @@ async def initialize(interaction: discord.Interaction):
 		if not role:
 			await interaction.guild.create_role(
 				name=role_info,
-				color=discord.Colour.from_rgb(data['color'].r, data['color'].g, data['color'].b),
+				color=data["color"].value,
 				mentionable=True,
 				reason=f"「幻想郷」ボットの初期化により作成されました。"
 			)
 			log = f"{log}\nロール「{name}」が作成されました。" if log != "" else f"ロール「{name}」が作成されました。"
 		else:
 			if role.color != data['color']:
-				await role.edit(color=discord.Colour.from_rgb(data['color'].r, data['color'].g, data['color'].b),)
+				await role.edit(color=data["color"].value)
 				log = f"{log}\nロール「{name}」の色が「{rgb_to_hex(data['color'].r, data['color'].g, data['color'].b)}」に更新されました。" if log != "" else f"{log}\nロール「{name}」の色が「{rgb_to_hex(data['color'].r, data['color'].g, data['color'].b)}」に更新されました。"
 
 	embed = discord.Embed(
