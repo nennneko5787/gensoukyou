@@ -163,7 +163,7 @@ async def handle_message(message: discord.Message, role_name: str):
 
     async with message.channel.typing():
         try:
-            response = client.chat.completions.create(
+            response = oclient.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=chat_rooms[message.author.id],
             )
@@ -199,7 +199,7 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
 
     async with message.channel.typing():
         try:
-            response = client.chat.completions.create(
+            response = oclient.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=chat_rooms[message.author.id],
             )
