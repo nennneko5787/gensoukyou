@@ -185,8 +185,6 @@ async def handle_message(message: discord.Message, role_name: str):
             embed = discord.Embed(description=text, color=role_info[role_name]['color'])
             embed.set_author(name=role_name, icon_url=role_info[role_name]["icon"])
             await message.reply(text)
-        finally:
-            is_ratelimited[message.author.id] = False
 
 async def handle_message_fukusuu(message: discord.Message, role_name: str):
     prompt = f"あなた達は、幻想郷に住んでいる、{role_name}です。"\
@@ -219,8 +217,6 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
             text = f"どうやら{role_name}の機嫌が悪いらしい...\n```\n{e}\n```"
             embed = discord.Embed(description=text, color=role_info["博麗霊夢"]['color'])
             await message.reply(text)
-        finally:
-            is_ratelimited[message.author.id] = False
 
 @client.event
 async def on_message(message: discord.Message):
