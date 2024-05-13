@@ -167,11 +167,11 @@ async def handle_message(message: discord.Message, role_name: str):
 
     async with message.channel.typing():
         try:
-            response = oclient.chat.completions.create(
+            response = await oclient.chat.completions.create(
                 model="gpt-4",
                 messages=chat_rooms[message.author.id],
             )
-            text = f"{dict(response)}"
+            text = response.choices[0].message.content
             chat_rooms[message.author.id].append(
                 {"role": "user", "content": prompt}
             )
@@ -201,11 +201,11 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
 
     async with message.channel.typing():
         try:
-            response = oclient.chat.completions.create(
+            response = await oclient.chat.completions.create(
                 model="gpt-4",
                 messages=chat_rooms[message.author.id],
             )
-            text = f"{dict(response)}"
+            text = text = response.choices[0].message.content
             chat_rooms[message.author.id].append(
                 {"role": "user", "content": prompt}
             )
