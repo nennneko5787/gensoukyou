@@ -19,8 +19,7 @@ if os.path.isfile(".env"):
     load_dotenv(verbose=True)
 
 oclient = AsyncClient(
-    provider = RetryProvider([GeminiProChat],
-                    single_provider_retry=True, max_retries=5)
+    provider=GeminiProChat
 )
 
 role_info = {
