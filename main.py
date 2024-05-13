@@ -10,7 +10,7 @@ from keep_alive import keep_alive
 import signal
 import sys
 from g4f.client import AsyncClient
-from g4f.Provider import OpenaiChat, RetryProvider
+from g4f.Provider import GeminiProChat, RetryProvider
 
 chat_rooms = defaultdict(list)
 
@@ -19,7 +19,7 @@ if os.path.isfile(".env"):
     load_dotenv(verbose=True)
 
 oclient = AsyncClient(
-    provider = RetryProvider([OpenaiChat],
+    provider = RetryProvider([GeminiProChat],
                     single_provider_retry=True, max_retries=5)
 )
 
