@@ -164,14 +164,14 @@ async def handle_message(message: discord.Message, role_name: str):
     async with message.channel.typing():
         try:
             response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=chat_rooms[message.author.id],
+                model="gpt-3.5-turbo",
+                messages=chat_rooms[message.author.id],
             )
             text = response.choices[0].message.content
             chat_rooms[message.author.id].append(
                 {"role": "user", "content": prompt}
             )
-                chat_rooms[message.author.id].append(
+            chat_rooms[message.author.id].append(
                 {"role": "assistant", "content": text}
             )
             
@@ -200,14 +200,14 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
     async with message.channel.typing():
         try:
             response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=chat_rooms[message.author.id],
+                model="gpt-3.5-turbo",
+                messages=chat_rooms[message.author.id],
             )
             text = response.choices[0].message.content
             chat_rooms[message.author.id].append(
                 {"role": "user", "content": prompt}
             )
-                chat_rooms[message.author.id].append(
+            chat_rooms[message.author.id].append(
                 {"role": "assistant", "content": text}
             )
             
