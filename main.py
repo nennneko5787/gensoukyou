@@ -257,6 +257,3 @@ signal.signal(signal.SIGTERM, sigterm_handler)
 
 keep_alive()
 client.run(os.getenv("discord"))
-```
-
-Now, the code indentation is uniform throughout. Let me know if you need further assistance!
