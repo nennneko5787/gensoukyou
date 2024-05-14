@@ -10,7 +10,7 @@ from keep_alive import keep_alive
 import signal
 import sys
 from g4f.client import AsyncClient
-from g4f.Provider import OpenaiChat, RetryProvider
+from g4f.Provider import Bing, ChatgptAi, OpenaiChat, RetryProvider
 
 chat_rooms = defaultdict(list)
 
@@ -19,7 +19,11 @@ if os.path.isfile(".env"):
     load_dotenv(verbose=True)
 
 oclient = AsyncClient(
-    provider=OpenaiChat
+    provider=RetryProvider([
+        OpenaiChat,
+        Bing,
+        ChatgptAi
+    ])
 )
 
 role_info = {
@@ -167,7 +171,6 @@ async def handle_message(message: discord.Message, role_name: str):
     async with message.channel.typing():
         try:
             response = await oclient.chat.completions.create(
-                model="gpt-4",
                 messages=chat_rooms[message.author.id],
             )
             text = response.choices[0].message.content
@@ -201,7 +204,6 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
     async with message.channel.typing():
         try:
             response = await oclient.chat.completions.create(
-                model="gpt-4",
                 messages=chat_rooms[message.author.id],
             )
             text = response.choices[0].message.content
