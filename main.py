@@ -23,13 +23,12 @@ if os.path.isfile(".env"):
 RetryProvider([
         g4f.Provider.OpenaiChat,
         g4f.Provider.DuckDuckGo,
-        g4f.Provider.Feedough,
         g4f.Provider.FreeGpt,
     ])
 """
 
 oclient = AsyncClient(
-    provider=g4f.Provider.Feedough
+    provider=g4f.Provider.DuckDuckGo
 )
 
 role_info = {
