@@ -9,6 +9,7 @@ import traceback
 from keep_alive import keep_alive
 import signal
 import sys
+import g4f
 from g4f.client import AsyncClient
 from g4f.Provider import RetryProvider
 
