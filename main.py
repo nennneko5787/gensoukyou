@@ -22,10 +22,8 @@ if os.path.isfile(".env"):
 oclient = AsyncClient(
     provider=RetryProvider([
         g4f.Provider.OpenaiChat,
-        g4f.Provider.Cnote,
         g4f.Provider.DuckDuckGo,
         g4f.Provider.Feedough,
-        g4f.Provider.Aichatos,
         g4f.Provider.FreeGpt,
     ])
 )
