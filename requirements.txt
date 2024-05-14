@@ -1,4 +1,4 @@
 discord.py
 Flask
 g4f
-nest_asyncio
+nodriver
