@@ -27,7 +27,7 @@ RetryProvider([
 """
 
 oclient = AsyncClient(
-    provider=g4f.Provider.FreeGpt
+    provider=g4f.Provider.OpenaiChat
 )
 
 role_info = {
