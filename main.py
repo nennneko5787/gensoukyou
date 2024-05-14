@@ -19,13 +19,17 @@ if os.path.isfile(".env"):
     from dotenv import load_dotenv
     load_dotenv(verbose=True)
 
-oclient = AsyncClient(
-    provider=RetryProvider([
+"""
+RetryProvider([
         g4f.Provider.OpenaiChat,
         g4f.Provider.DuckDuckGo,
         g4f.Provider.Feedough,
         g4f.Provider.FreeGpt,
     ])
+"""
+
+oclient = AsyncClient(
+    provider=g4f.Provider.Feedough
 )
 
 role_info = {
