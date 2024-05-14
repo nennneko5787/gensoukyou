@@ -10,7 +10,7 @@ from keep_alive import keep_alive
 import signal
 import sys
 from g4f.client import AsyncClient
-from g4f.Provider import Bing, You, OpenaiChat, RetryProvider
+from g4f.Provider import RetryProvider
 
 chat_rooms = defaultdict(list)
 
@@ -20,9 +20,13 @@ if os.path.isfile(".env"):
 
 oclient = AsyncClient(
     provider=RetryProvider([
-        OpenaiChat,
-        Bing,
-        You
+        g4f.Provider.OpenaiChat,
+        g4f.Provider.Cnote,
+        g4f.Provider.DuckDuckGo,
+        g4f.Provider.Ecosia,
+        g4f.Provider.Feedough,
+        g4f.Provider.Aichatos,
+        g4f.Provider.FreeGpt,
     ])
 )
 
@@ -174,7 +178,7 @@ async def handle_message(message: discord.Message, role_name: str):
                 {"role": "user", "content": prompt}
             )
             response = await oclient.chat.completions.create(
-                model="gpt-4",
+                model="gpt-3.5-turbo",
                 messages=chat_rooms[message.author.id],
             )
             text = response.choices[0].message.content
@@ -208,7 +212,7 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
                 {"role": "user", "content": prompt}
             )
             response = await oclient.chat.completions.create(
-                model="gpt-4",
+                model="gpt-3.5-turbo",
                 messages=chat_rooms[message.author.id],
             )
             text = response.choices[0].message.content
