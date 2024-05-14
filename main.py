@@ -24,7 +24,6 @@ oclient = AsyncClient(
         g4f.Provider.OpenaiChat,
         g4f.Provider.Cnote,
         g4f.Provider.DuckDuckGo,
-        g4f.Provider.Ecosia,
         g4f.Provider.Feedough,
         g4f.Provider.Aichatos,
         g4f.Provider.FreeGpt,
