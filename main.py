@@ -10,7 +10,7 @@ from keep_alive import keep_alive
 import signal
 import sys
 from g4f.client import AsyncClient
-from g4f.Provider import Bing, ChatgptAi, OpenaiChat, RetryProvider
+from g4f.Provider import Bing, You, OpenaiChat, RetryProvider
 
 chat_rooms = defaultdict(list)
 
@@ -22,7 +22,7 @@ oclient = AsyncClient(
     provider=RetryProvider([
         OpenaiChat,
         Bing,
-        ChatgptAi
+        You
     ])
 )
 
