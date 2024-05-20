@@ -9,6 +9,9 @@ from .base_provider import AsyncGeneratorProvider, ProviderModelMixin
 from ..image import to_bytes, is_accepted_format
 from ..errors import MissingAuthError
 from .helper import get_connector
+import logging
+
+log = logging.getLogger()
 
 class GeminiPro(AsyncGeneratorProvider, ProviderModelMixin):
     label = "Gemini API"
@@ -114,5 +117,5 @@ class GeminiPro(AsyncGeneratorProvider, ProviderModelMixin):
                             lines.append(chunk)
                 else:
                     data = await response.json()
-                    print(data)
+                    log.info(data)
                     yield data["candidates"][0]["content"]["parts"][0]["text"]
