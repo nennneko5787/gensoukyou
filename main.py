@@ -30,16 +30,10 @@ oclient = AsyncClient(
     provider=GeminiPro
 )
 
-api_keys = [
-    os.getenv("gemini1"),
-    os.getenv("gemini2"),
-    os.getenv("gemini3"),
-    os.getenv("gemini4"),
-    os.getenv("gemini5"),
-    os.getenv("gemini6"),
-    os.getenv("gemini7"),
-    os.getenv("gemini8"),
-]
+api_keys = []
+
+for i in range(30):
+    api_keys.append(os.getenv(f"gemini{i}"))
 
 role_info = {
     "": {
