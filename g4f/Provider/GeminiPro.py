@@ -72,7 +72,7 @@ class GeminiPro(AsyncGeneratorProvider, ProviderModelMixin):
                     "topP": kwargs.get("top_p"),
                     "topK": kwargs.get("top_k"),
                 },
-                "safetyRatings": [
+                "safetySettings": [
                     {
                         "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
                         "probability": "BLOCK_NONE"
