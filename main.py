@@ -32,8 +32,11 @@ oclient = AsyncClient(
 
 api_keys = []
 
-for i in range(10):
-    api_keys.append(os.getenv(f"gemini{i}"))
+# APIキーはここから追加！
+# https://aistudio.google.com/app/apikey
+for i in range(0, 15):
+    if os.getenv(f"gemini{i}") is not None:
+        api_keys.append(os.getenv(f"gemini{i}"))
 
 role_info = {
     "": {
@@ -99,7 +102,7 @@ async def icon():
 
 @tasks.loop(seconds=20)
 async def presence():
-    game = discord.Game(f"/init | {len(client.guilds)} servers | {len(chat_rooms)} chat rooms / {len([member for member in client.users if not member.bot])}")
+    game = discord.Game(f"/init | {len(client.guilds)} servers | {len(chat_rooms)} members are chatting / {len([member for member in client.users if not member.bot])} members")
     await client.change_presence(status=discord.Status.online, activity=game)
 
 def rgb_to_hex(r,g,b):
