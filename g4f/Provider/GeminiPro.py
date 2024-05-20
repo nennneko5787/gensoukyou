@@ -28,7 +28,7 @@ class GeminiPro(AsyncGeneratorProvider, ProviderModelMixin):
         stream: bool = False,
         proxy: str = None,
         api_key: str = None,
-        api_base: str = "https://generativelanguage.googleapis.com/v1beta",
+        api_base: str = "https://generativelanguage.googleapis.com/v1",
         use_auth_header: bool = False,
         image: ImageType = None,
         connector: BaseConnector = None,
