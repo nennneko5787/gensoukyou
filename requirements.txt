@@ -3,3 +3,4 @@ Flask
 g4f
 nodriver
 nest_asyncio
+asyncpg

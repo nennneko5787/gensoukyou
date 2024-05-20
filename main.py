@@ -12,6 +12,7 @@ import sys
 import g4f
 from g4f.client import AsyncClient
 from g4f.Provider import GeminiPro
+import asyncpg
 
 chat_rooms = defaultdict(list)
 
@@ -86,6 +87,12 @@ async def setup_hook():
 
 @client.event
 async def on_ready():
+    conn = await asyncpg.connect(os.getenv("dsn"))
+    result = await conn.fetch('SELECT * FROM chat_rooms')
+    await conn.close()
+    for row in result:
+        uid = row["id"]
+        chat_rooms[uid] = row["data"]
     presence.start()
 
 def get_png_files(directory):
@@ -269,7 +276,14 @@ async def on_message(message: discord.Message):
                     if message.reference.resolved.embeds[0].author.name in list(role_info.keys()):
                         await handle_message(message, message.reference.resolved.embeds[0].author.name)
 
+async def save():
+    conn = await asyncpg.connect(os.getenv("dsn"))
+    for key, value in chat_rooms.items():
+        await conn.execute('INSERT INTO chat_rooms (id, data) VALUES ($1,$2)', key, value)
+    await conn.close()
+
 def sigterm_handler(a, b):
+    asyncio.create_task(save())
     print("Received SIGTERM, exiting gracefully")
     sys.exit(0)
 
