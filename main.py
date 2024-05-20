@@ -32,7 +32,7 @@ oclient = AsyncClient(
 
 api_keys = []
 
-for i in range(30):
+for i in range(10):
     api_keys.append(os.getenv(f"gemini{i}"))
 
 role_info = {
