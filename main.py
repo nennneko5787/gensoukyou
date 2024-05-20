@@ -197,7 +197,7 @@ async def handle_message(message: discord.Message, role_name: str):
                 {"role": "user", "content": prompt}
             )
             response = await oclient.chat.completions.create(
-                model="gemini-1.5-flash",
+                model="gemini-1.0-pro-latest",
                 api_key=random.choice(api_keys),
                 messages=chat_rooms[message.author.id],
             )
@@ -232,7 +232,7 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
                 {"role": "user", "content": prompt}
             )
             response = await oclient.chat.completions.create(
-                model="gemini-1.5-flash",
+                model="gemini-1.0-pro-latest",
                 api_key=random.choice(api_keys),
                 messages=chat_rooms[message.author.id],
             )
