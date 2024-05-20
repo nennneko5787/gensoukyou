@@ -13,7 +13,6 @@ import g4f
 from g4f.client import AsyncClient
 from g4f.Provider import GeminiPro
 import asyncpg
-import aiohttp
 
 chat_rooms = defaultdict(list)
 
@@ -33,7 +32,6 @@ oclient = AsyncClient(
 )
 
 api_keys = []
-proxies = []
 
 # APIキーはここから追加！
 # https://aistudio.google.com/app/apikey
@@ -86,11 +84,6 @@ tree = app_commands.CommandTree(client)
 async def setup_hook():
     await tree.sync()
     icon.start()
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url="https://api.proxyscrape.com/v3/free-proxy-list/get?request=displayproxies&proxy_format=protocolipport&format=text") as response:
-            _pros = (await response.text()).replace("\r\n", "\n").replace("\r", "\n").split("\n")
-            for _pro in _pros:
-                proxies.append(_pro)
 
 @client.event
 async def on_ready():
@@ -206,7 +199,6 @@ async def handle_message(message: discord.Message, role_name: str):
             response = await oclient.chat.completions.create(
                 model="gemini-1.5-pro-latest",
                 api_key=random.choice(api_keys),
-                proxy=random.choice(proxies),
                 messages=chat_rooms[message.author.id],
             )
             text = response.choices[0].message.content
@@ -242,7 +234,6 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
             response = await oclient.chat.completions.create(
                 model="gemini-1.5-pro-latest",
                 api_key=random.choice(api_keys),
-                proxy=random.choice(proxies),
                 messages=chat_rooms[message.author.id],
             )
             text = response.choices[0].message.content

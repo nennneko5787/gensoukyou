@@ -4,4 +4,3 @@ g4f
 nodriver
 nest_asyncio
 asyncpg
-aiohttp_socks
