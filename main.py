@@ -99,7 +99,7 @@ async def icon():
 
 @tasks.loop(seconds=20)
 async def presence():
-    game = discord.Game(f"/init | {len(client.guilds)} servers | {len(chat_rooms)} chat rooms")
+    game = discord.Game(f"/init | {len(client.guilds)} servers | {len(chat_rooms)} chat rooms / {len([member for member in client.users if not member.bot])}")
     await client.change_presence(status=discord.Status.online, activity=game)
 
 def rgb_to_hex(r,g,b):
