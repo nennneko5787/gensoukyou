@@ -72,6 +72,10 @@ role_info = {
         'color': discord.Colour.from_rgb(73, 73, 73),
         "icon": "https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th120-010101.png"
     },
+    "八意永琳": {
+        'color': discord.Colour.from_rgb(161, 214, 248),
+        "icon": "https://i.imgur.com/c3s9xep.png",
+    },
 }
 
 intents = discord.Intents.default()
