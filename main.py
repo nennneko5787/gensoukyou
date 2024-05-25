@@ -199,16 +199,15 @@ async def handle_message(message: discord.Message, role_name: str):
 
     async with message.channel.typing():
         try:
-            response = await oclient.chat.completions.create(
-                model="gemini-pro",
-                api_key=random.choice(api_keys),
-                prompt=prompt,
-                messages=chat_rooms[message.author.id],
-            )
-            text = response.choices[0].message.content
             chat_rooms[message.author.id].append(
                 {"role": "user", "content": prompt}
             )
+            response = await oclient.chat.completions.create(
+                model="gemini-pro",
+                api_key=random.choice(api_keys),
+                messages=chat_rooms[message.author.id],
+            )
+            text = response.choices[0].message.content
             chat_rooms[message.author.id].append(
                 {"role": "assistant", "content": text}
             )
@@ -235,16 +234,15 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
 
     async with message.channel.typing():
         try:
-            response = await oclient.chat.completions.create(
-                model="gemini-pro",
-                api_key=random.choice(api_keys),
-                prompt=prompt,
-                messages=chat_rooms[message.author.id],
-            )
-            text = response.choices[0].message.content
             chat_rooms[message.author.id].append(
                 {"role": "user", "content": prompt}
             )
+            response = await oclient.chat.completions.create(
+                model="gemini-pro",
+                api_key=random.choice(api_keys),
+                messages=chat_rooms[message.author.id],
+            )
+            text = response.choices[0].message.content
             chat_rooms[message.author.id].append(
                 {"role": "assistant", "content": text}
             )
