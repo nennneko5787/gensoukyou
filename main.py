@@ -76,8 +76,11 @@ role_info = {
         'color': discord.Colour.from_rgb(161, 214, 248),
         "icon": "https://i.imgur.com/c3s9xep.png",
     },
+    "ルーミア": {
+        'color': discord.color.from_rgb(238, 187, 68),
+        "icon": "https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th060-010101.png",
 }
-
+。
 intents = discord.Intents.default()
 intents.message_content = True
 client = discord.Client(intents=intents)
