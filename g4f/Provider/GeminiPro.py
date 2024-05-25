@@ -11,7 +11,7 @@ from ..errors import MissingAuthError
 from .helper import get_connector
 import logging
 
-log = logging.getLogger()
+log = logging.getLogger("flask")
 
 class GeminiPro(AsyncGeneratorProvider, ProviderModelMixin):
     label = "Gemini API"
