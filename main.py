@@ -77,7 +77,7 @@ role_info = {
         "icon": "https://i.imgur.com/c3s9xep.png",
     },
     "ルーミア": {
-        'color': discord.color.from_rgb(238, 187, 68),
+        'color': discord.Colour.from_rgb(238, 187, 68),
         "icon": "https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th060-010101.png",
     }
 }
