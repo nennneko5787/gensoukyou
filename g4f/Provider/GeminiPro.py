@@ -117,4 +117,5 @@ class GeminiPro(AsyncGeneratorProvider, ProviderModelMixin):
                             lines.append(chunk)
                 else:
                     data = await response.json()
+                    log.info(f"{data}")
                     yield data["candidates"][0]["content"]["parts"][0]["text"]
