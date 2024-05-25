@@ -115,7 +115,7 @@ async def icon():
 
 @tasks.loop(seconds=20)
 async def presence():
-    game = discord.Game(f"/init | {len(client.guilds)} servers | {len(chat_rooms)} members are chatting / {len([member for member in client.users if not member.bot])} members")
+    game = discord.Game(f"/init | {len(client.guilds)} servers | {len(chat_rooms)} members are chatting")
     await client.change_presence(status=discord.Status.online, activity=game)
 
 def rgb_to_hex(r,g,b):
@@ -199,15 +199,16 @@ async def handle_message(message: discord.Message, role_name: str):
 
     async with message.channel.typing():
         try:
-            chat_rooms[message.author.id].append(
-                {"role": "user", "content": prompt}
-            )
             response = await oclient.chat.completions.create(
                 model="gemini-pro",
                 api_key=random.choice(api_keys),
+                prompt=prompt,
                 messages=chat_rooms[message.author.id],
             )
             text = response.choices[0].message.content
+            chat_rooms[message.author.id].append(
+                {"role": "user", "content": prompt}
+            )
             chat_rooms[message.author.id].append(
                 {"role": "assistant", "content": text}
             )
@@ -234,15 +235,16 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
 
     async with message.channel.typing():
         try:
-            chat_rooms[message.author.id].append(
-                {"role": "user", "content": prompt}
-            )
             response = await oclient.chat.completions.create(
                 model="gemini-pro",
                 api_key=random.choice(api_keys),
+                prompt=prompt,
                 messages=chat_rooms[message.author.id],
             )
             text = response.choices[0].message.content
+            chat_rooms[message.author.id].append(
+                {"role": "user", "content": prompt}
+            )
             chat_rooms[message.author.id].append(
                 {"role": "assistant", "content": text}
             )
