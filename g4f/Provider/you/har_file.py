@@ -93,7 +93,7 @@ async def get_telemetry_ids(proxy: str = None) -> list:
     browser = page = None
     try:
         browser = await start(
-            browser_args=None if proxy is None else [f"--proxy-server={proxy}"],
+            browser_args="--no-sandbox" if proxy is None else [f"--proxy-server={proxy}"],
             no_sandbox=True,
         )
         page = await browser.get("https://you.com")
