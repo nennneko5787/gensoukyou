@@ -206,6 +206,7 @@ async def handle_message(message: discord.Message, role_name: str):
                 model="claude-3-opus",
                 #api_key=random.choice(api_keys),
                 messages=chat_rooms[message.author.id],
+                no_sandbox=True,
             )
             text = response.choices[0].message.content
             chat_rooms[message.author.id].append(
@@ -241,6 +242,7 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
                 model="claude-3-opus",
                 #api_key=random.choice(api_keys),
                 messages=chat_rooms[message.author.id],
+                no_sandbox=True,
             )
             text = response.choices[0].message.content
             chat_rooms[message.author.id].append(
