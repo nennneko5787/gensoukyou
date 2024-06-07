@@ -11,7 +11,7 @@ import signal
 import sys
 import g4f
 from g4f.client import AsyncClient
-from g4f.Provider import GeminiPro
+from g4f.Provider import You
 import asyncpg
 
 chat_rooms = defaultdict(list)
@@ -28,7 +28,7 @@ RetryProvider([
 """
 
 oclient = AsyncClient(
-    provider=GeminiPro
+    provider=You
 )
 
 api_keys = []
@@ -203,8 +203,8 @@ async def handle_message(message: discord.Message, role_name: str):
                 {"role": "user", "content": prompt}
             )
             response = await oclient.chat.completions.create(
-                model="gemini-pro",
-                api_key=random.choice(api_keys),
+                model="claude-3-opus",
+                #api_key=random.choice(api_keys),
                 messages=chat_rooms[message.author.id],
             )
             text = response.choices[0].message.content
@@ -238,8 +238,8 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
                 {"role": "user", "content": prompt}
             )
             response = await oclient.chat.completions.create(
-                model="gemini-pro",
-                api_key=random.choice(api_keys),
+                model="claude-3-opus",
+                #api_key=random.choice(api_keys),
                 messages=chat_rooms[message.author.id],
             )
             text = response.choices[0].message.content
