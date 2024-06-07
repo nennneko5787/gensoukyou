@@ -11,7 +11,7 @@ import signal
 import sys
 import g4f
 from g4f.client import AsyncClient
-from g4f.Provider import You
+from g4f.Provider import GeminiPro
 import asyncpg
 
 chat_rooms = defaultdict(list)
@@ -28,7 +28,7 @@ RetryProvider([
 """
 
 oclient = AsyncClient(
-    provider=You
+    provider=GeminiPro
 )
 
 api_keys = []
@@ -203,10 +203,9 @@ async def handle_message(message: discord.Message, role_name: str):
                 {"role": "user", "content": prompt}
             )
             response = await oclient.chat.completions.create(
-                model="claude-3-opus",
-                #api_key=random.choice(api_keys),
+                model="gemini-1.5-flash",
+                api_key=random.choice(api_keys),
                 messages=chat_rooms[message.author.id],
-                no_sandbox=True,
             )
             text = response.choices[0].message.content
             chat_rooms[message.author.id].append(
@@ -217,9 +216,9 @@ async def handle_message(message: discord.Message, role_name: str):
             embed.set_author(name=role_name, icon_url=role_info[role_name]["icon"])
             await message.reply(embed=embed)
         except Exception as e:
-            traceback_info = traceback.format_exc()
+            #traceback_info = traceback.format_exc()
             traceback.print_exception(e)
-            text = f"どうやら{role_name}の機嫌が悪いらしい...\n```\n{traceback_info}\n```"
+            text = f"どうやら{role_name}の機嫌が悪いらしい...\n```\n{e}\n```"
             embed = discord.Embed(description=text, color=role_info[role_name]['color'])
             embed.set_author(name=role_name, icon_url=role_info[role_name]["icon"])
             await message.reply(text)
@@ -239,10 +238,9 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
                 {"role": "user", "content": prompt}
             )
             response = await oclient.chat.completions.create(
-                model="claude-3-opus",
-                #api_key=random.choice(api_keys),
+                model="gemini-1.5-flash",
+                api_key=random.choice(api_keys),
                 messages=chat_rooms[message.author.id],
-                no_sandbox=True,
             )
             text = response.choices[0].message.content
             chat_rooms[message.author.id].append(
