@@ -217,9 +217,9 @@ async def handle_message(message: discord.Message, role_name: str):
             embed.set_author(name=role_name, icon_url=role_info[role_name]["icon"])
             await message.reply(embed=embed)
         except Exception as e:
-            # traceback_info = traceback.format_exc()
+            traceback_info = traceback.format_exc()
             traceback.print_exception(e)
-            text = f"どうやら{role_name}の機嫌が悪いらしい...\n```\n{e}\n```"
+            text = f"どうやら{role_name}の機嫌が悪いらしい...\n```\n{traceback_info}\n```"
             embed = discord.Embed(description=text, color=role_info[role_name]['color'])
             embed.set_author(name=role_name, icon_url=role_info[role_name]["icon"])
             await message.reply(text)
