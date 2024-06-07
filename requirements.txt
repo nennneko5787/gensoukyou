@@ -4,3 +4,4 @@ g4f
 nodriver
 nest_asyncio
 asyncpg
+chromedriver-binary
