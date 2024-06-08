@@ -103,7 +103,10 @@ async def on_ready():
     await conn.close()
     for row in result:
         uid = row["id"]
-        chat_rooms[uid] = row["data"]
+        if isinstance(row["data"], str):
+            chat_rooms[uid] = json.loads(row["data"])
+        else:
+            chat_rooms[uid] = row["data"]
     presence.start()
 
 def get_png_files(directory):
