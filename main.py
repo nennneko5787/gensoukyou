@@ -241,7 +241,7 @@ async def handle_message(message: discord.Message, role_name: str):
         await message.reply(embed=embed)
 
         conn = await asyncpg.connect(os.getenv("dsn"))
-        await conn.execute('INSERT INTO chat_rooms (id, data) VALUES ($1,$2)', message.author.id, json.dumps(chat_rooms[message.author.id]))
+        await conn.execute('INSERT INTO chat_rooms (id, data) VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data', message.author.id, json.dumps(chat_rooms[message.author.id]))
         await conn.close()
 
 async def handle_message_fukusuu(message: discord.Message, role_name: str):
@@ -284,7 +284,7 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
         await message.reply(embed=embed)
 
         conn = await asyncpg.connect(os.getenv("dsn"))
-        await conn.execute('INSERT INTO chat_rooms (id, data) VALUES ($1,$2)', message.author.id, json.dumps(chat_rooms[message.author.id]))
+        await conn.execute('INSERT INTO chat_rooms (id, data) VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data', message.author.id, json.dumps(chat_rooms[message.author.id]))
         await conn.close()
 
 @client.event
