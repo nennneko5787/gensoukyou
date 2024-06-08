@@ -85,7 +85,7 @@ intents.message_content = True
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 
-def exit():
+def exit(a, b):
     print("Received SIGTERM, exiting gracefully")
     sys.exit(0)
 
@@ -174,7 +174,7 @@ async def chat_clean(interaction: discord.Interaction):
     await interaction.response.defer(ephemeral=True)
     del chat_rooms[interaction.user.id]
     conn = await asyncpg.connect(os.getenv("dsn"))
-    await conn.execute('INSERT INTO chat_rooms (id, data) VALUES ($1,$2)', interaction.user.id, json.dumps(chat_rooms[interaction.user.id]))
+    await conn.execute('INSERT INTO chat_rooms (id, data) VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data', interaction.user.id, json.dumps(chat_rooms[interaction.user.id]))
     await conn.close()
     await interaction.response.send_message("チャット履歴を削除しました。", ephemeral=True)
 
