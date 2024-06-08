@@ -176,7 +176,7 @@ async def chat_clean(interaction: discord.Interaction):
     conn = await asyncpg.connect(os.getenv("dsn"))
     await conn.execute('INSERT INTO chat_rooms (id, data) VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data', interaction.user.id, json.dumps(chat_rooms[interaction.user.id]))
     await conn.close()
-    await interaction.response.send_message("チャット履歴を削除しました。", ephemeral=True)
+    await interaction.followup.send("チャット履歴を削除しました。", ephemeral=True)
 
 @tree.command(name="characters", description="キャラクターの一覧を確認できます")
 async def characters(interaction: discord.Interaction):
