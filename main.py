@@ -9,10 +9,10 @@ import traceback
 from keep_alive import keep_alive
 import signal
 import sys
-import g4f
-from g4f.client import AsyncClient
-from g4f.Provider import GeminiPro
 import asyncpg
+import aiohttp
+from enum import Enum
+import json
 
 chat_rooms = defaultdict(list)
 
@@ -20,22 +20,11 @@ if os.path.isfile(".env"):
     from dotenv import load_dotenv
     load_dotenv(verbose=True)
 
-"""
-RetryProvider([
-        g4f.Provider.OpenaiChat,
-        g4f.Provider.FreeGpt,
-    ])
-"""
-
-oclient = AsyncClient(
-    provider=GeminiPro
-)
-
 api_keys = []
 
 # APIキーはここから追加！
 # https://aistudio.google.com/app/apikey
-for i in range(0, 15):
+for i in range(0, 16):
     if os.getenv(f"gemini{i}") is not None:
         api_keys.append(os.getenv(f"gemini{i}"))
 
@@ -81,10 +70,26 @@ role_info = {
         "icon": "https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th060-010101.png",
     }
 }
+
+finishReasons = {
+    "FINISH_REASON_UNSPECIFIED": "不明なエラー。報告不要です。",
+    "STOP": "不明なエラー。報告をお願いします。",
+    "MAX_TOKENS": "トークンが限界突破しました。報告不要です。",
+    "SAFETY": "エロすぎます。",
+    "RECITATION": "本当に機嫌が悪いのか...? もう一度話しかけてみてください。",
+    "OTHER": "なぜなんだ...?"
+}
+
 intents = discord.Intents.default()
 intents.message_content = True
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
+
+def exit():
+    print("Received SIGTERM, exiting gracefully")
+    sys.exit(0)
+
+signal.signal(signal.SIGTERM, exit)
 
 @client.event
 async def setup_hook():
@@ -163,7 +168,11 @@ async def initialize(interaction: discord.Interaction):
 
 @tree.command(name="chat_clean", description="キャラクターとの会話履歴をリセットし、なかったことにします(???)")
 async def chat_clean(interaction: discord.Interaction):
+    await interaction.response.defer(ephemeral=True)
     del chat_rooms[interaction.user.id]
+    conn = await asyncpg.connect(os.getenv("dsn"))
+    await conn.execute('INSERT INTO chat_rooms (id, data) VALUES ($1,$2)', interaction.user.id, json.dumps(chat_rooms[interaction.user.id]))
+    await conn.close()
     await interaction.response.send_message("チャット履歴を削除しました。", ephemeral=True)
 
 @tree.command(name="characters", description="キャラクターの一覧を確認できます")
@@ -198,30 +207,39 @@ async def handle_message(message: discord.Message, role_name: str):
             "返答にはMarkdown記法を使うことができます。"
 
     async with message.channel.typing():
-        try:
-            chat_rooms[message.author.id].append(
-                {"role": "user", "content": prompt}
-            )
-            response = await oclient.chat.completions.create(
-                model="gemini-1.0",
-                api_key=random.choice(api_keys),
-                messages=chat_rooms[message.author.id],
-            )
-            text = response.choices[0].message.content
-            chat_rooms[message.author.id].append(
-                {"role": "assistant", "content": text}
-            )
-            
-            embed = discord.Embed(title="", description=text, color=role_info[role_name]['color'])
-            embed.set_author(name=role_name, icon_url=role_info[role_name]["icon"])
-            await message.reply(embed=embed)
-        except Exception as e:
-            #traceback_info = traceback.format_exc()
-            traceback.print_exception(e)
-            text = f"どうやら{role_name}の機嫌が悪いらしい...\n```\n{e}\n```"
+        chat_rooms[message.author.id].append(
+            {"role": "user", "content": prompt}
+        )
+        response = await gemini_combo(
+            model="gemini-1.0-pro",
+            messages=chat_rooms[message.author.id],
+        )
+        jsonData = response.get("content", {})
+        status = response.get("status", 0)
+        finishReason = jsonData.get("candidates", [])[0].get("finishReason")
+        if status != 200:
+            chat_rooms[message.author.id] = chat_rooms[message.author.id].pop()
+            text = f"どうやら{role_name}の機嫌が悪いらしい: `HTTP {status}`"
             embed = discord.Embed(description=text, color=role_info[role_name]['color'])
-            embed.set_author(name=role_name, icon_url=role_info[role_name]["icon"])
             await message.reply(text)
+        if finishReason != "STOP":
+            chat_rooms[message.author.id] = chat_rooms[message.author.id].pop()
+            text = f"どうやら{role_name}の機嫌が悪いらしい: `{finishReasons[finishReason]}`"
+            embed = discord.Embed(description=text, color=role_info[role_name]['color'])
+            await message.reply(text)
+        text = jsonData.get("candidates", [])[0].get("content",{}).get("parts", [])[0].get("text", "機嫌が悪いっぽい、もう一度やってみて")
+            
+        chat_rooms[message.author.id].append(
+            {"role": "model", "content": text}
+        )
+        
+        embed = discord.Embed(title="", description=text, color=role_info[role_name]['color'])
+        embed.set_author(name=role_name, icon_url=role_info[role_name]["icon"])
+        await message.reply(embed=embed)
+
+        conn = await asyncpg.connect(os.getenv("dsn"))
+        await conn.execute('INSERT INTO chat_rooms (id, data) VALUES ($1,$2)', message.author.id, json.dumps(chat_rooms[message.author.id]))
+        await conn.close()
 
 async def handle_message_fukusuu(message: discord.Message, role_name: str):
     prompt = f"あなた達は、幻想郷に住んでいる、{role_name}です。"\
@@ -233,28 +251,38 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
             "返答にはMarkdown記法を使うことができます。"
 
     async with message.channel.typing():
-        try:
-            chat_rooms[message.author.id].append(
-                {"role": "user", "content": prompt}
-            )
-            response = await oclient.chat.completions.create(
-                model="gemini-1.0",
-                api_key=random.choice(api_keys),
-                messages=chat_rooms[message.author.id],
-            )
-            text = response.choices[0].message.content
-            chat_rooms[message.author.id].append(
-                {"role": "assistant", "content": text}
-            )
-            
-            embed = discord.Embed(title="", description=text, color=role_info["博麗霊夢"]['color'])
-            await message.reply(embed=embed)
-        except Exception as e:
-            # traceback_info = traceback.format_exc()
-            traceback.print_exception(e)
-            text = f"どうやら{role_name}の機嫌が悪いらしい...\n```\n{e}\n```"
+        chat_rooms[message.author.id].append(
+            {"role": "user", "content": prompt}
+        )
+        response = await gemini_combo(
+            model="gemini-1.0-pro",
+            messages=chat_rooms[message.author.id],
+        )
+        jsonData = response.get("content", {})
+        status = response.get("status", 0)
+        finishReason = jsonData.get("candidates", [])[0].get("finishReason")
+        if status != 200:
+            chat_rooms[message.author.id] = chat_rooms[message.author.id].pop()
+            text = f"どうやら{role_name}の機嫌が悪いらしい: `HTTP {status}`"
             embed = discord.Embed(description=text, color=role_info["博麗霊夢"]['color'])
             await message.reply(text)
+        if finishReason != "STOP":
+            chat_rooms[message.author.id] = chat_rooms[message.author.id].pop()
+            text = f"どうやら{role_name}の機嫌が悪いらしい: `{finishReasons[finishReason]}`"
+            embed = discord.Embed(description=text, color=role_info["博麗霊夢"]['color'])
+            await message.reply(text)
+        text = jsonData.get("candidates", [])[0].get("content",{}).get("parts", [])[0].get("text", "機嫌が悪いっぽい、もう一度やってみて")
+            
+        chat_rooms[message.author.id].append(
+            {"role": "model", "content": text}
+        )
+        
+        embed = discord.Embed(title="", description=text, color=role_info["博麗霊夢"]['color'])
+        await message.reply(embed=embed)
+
+        conn = await asyncpg.connect(os.getenv("dsn"))
+        await conn.execute('INSERT INTO chat_rooms (id, data) VALUES ($1,$2)', message.author.id, json.dumps(chat_rooms[message.author.id]))
+        await conn.close()
 
 @client.event
 async def on_message(message: discord.Message):
@@ -282,19 +310,64 @@ async def on_message(message: discord.Message):
                     if message.reference.resolved.embeds[0].author.name in list(role_info.keys()):
                         await handle_message(message, message.reference.resolved.embeds[0].author.name)
 
-async def save():
-    conn = await asyncpg.connect(os.getenv("dsn"))
-    for key, value in chat_rooms.items():
-        await conn.execute('INSERT INTO chat_rooms (id, data) VALUES ($1,$2)', key, value)
-    await conn.close()
+async def gemini_combo(*, model: str, messages: list):
+    safetySettings: list = [
+        {
+            "category": "HARM_CATEGORY_HARASSMENT",
+            "threshold": "BLOCK_NONE"
+        },
+        {
+            "category": "HARM_CATEGORY_HATE_SPEECH",
+            "threshold": "BLOCK_NONE"
+        },
+        {
+            "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+            "threshold": "BLOCK_NONE"
+        },
+        {
+            "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+            "threshold": "BLOCK_NONE"
+        }
+    ]
+    gemini_messages: list = []
+    for message in messages:
+        gemini_messages.append(
+            {
+                "parts": [
+                    {
+                        "text": message.get("content", ""),
+                    }
+                ],
+                "role": message.get("role", "")
+            }
+        )
 
-def sigterm_handler(a, b):
-    asyncio.create_task(save())
-    print("Received SIGTERM, exiting gracefully")
-    sys.exit(0)
+    data = {
+        "contents": gemini_messages,
+        "safetySettings": safetySettings,
+        "generationConfig": {
+            "temperature": 1,
+            "top_p": 0.95,
+            "top_k": 64,
+            "max_output_tokens": 8192,
+        },
+    }
 
-# SIGTERMシグナルハンドラを設定
-signal.signal(signal.SIGTERM, sigterm_handler)
+    headers = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(
+            f'https://generativelanguage.googleapis.com/v1/models/{model}:generateContent?key={random.choice(api_keys)}',
+            json=data,
+            headers=headers,
+        ) as response:
+            return {
+                "content": await response.json(),
+                "status": response.status
+            }
 
 keep_alive()
 client.run(os.getenv("discord"))
