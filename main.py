@@ -291,58 +291,64 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
             "返答にはMarkdown記法を使うことができます。"
 
     async with message.channel.typing():
-        inline = []
+        try:
+            inline = []
 
-        for file in message.attachments:
-            if file.content_type is None:
-                continue
-            data = await file.read()
-            base64_data = base64.b64encode(data).decode('utf-8')
-            inline.append(
-                {
-                    "inlineData": {
-                        "mimeType": file.content_type,
-                        "data": base64_data,
+            for file in message.attachments:
+                if file.content_type is None:
+                    continue
+                data = await file.read()
+                base64_data = base64.b64encode(data).decode('utf-8')
+                inline.append(
+                    {
+                        "inlineData": {
+                            "mimeType": file.content_type,
+                            "data": base64_data,
+                        }
                     }
+                )
+
+            chat_rooms[message.author.id].append(
+                {
+                    "role": "user",
+                    "content": prompt,
+                    "inlineDatas": inline
                 }
             )
-
-        chat_rooms[message.author.id].append(
-            {
-                "role": "user",
-                "content": prompt,
-                "inlineDatas": inline
-            }
-        )
-        response = await gemini_combo(
-            model="gemini-1.5-flash",
-            messages=chat_rooms[message.author.id],
-        )
-        jsonData = response.get("content", {})
-        status = response.get("status", 0)
-        finishReason = jsonData.get("candidates", [])[0].get("finishReason")
-        if status != 200:
-            chat_rooms[message.author.id].pop()
-            text = f"どうやら{role_name}の機嫌が悪いらしい: `HTTP {status}`"
-            embed = discord.Embed(description=text, color=role_info["博麗霊夢"]['color'])
-            await message.reply(text)
-        if finishReason != "STOP":
-            chat_rooms[message.author.id].pop()
-            text = f"どうやら{role_name}の機嫌が悪いらしい: `{finishReasons[finishReason]}`"
-            embed = discord.Embed(description=text, color=role_info["博麗霊夢"]['color'])
-            await message.reply(text)
-        text = jsonData.get("candidates", [])[0].get("content",{}).get("parts", [])[0].get("text", "機嫌が悪いっぽい、もう一度やってみて")
+            response = await gemini_combo(
+                model="gemini-1.5-flash",
+                messages=chat_rooms[message.author.id],
+            )
+            jsonData = response.get("content", {})
+            status = response.get("status", 0)
+            finishReason = jsonData.get("candidates", [])[0].get("finishReason")
+            if status != 200:
+                chat_rooms[message.author.id].pop()
+                text = f"どうやら{role_name}の機嫌が悪いらしい: `HTTP {status}`"
+                embed = discord.Embed(description=text, color=role_info["博麗霊夢"]['color'])
+                await message.reply(text)
+            if finishReason != "STOP":
+                chat_rooms[message.author.id].pop()
+                text = f"どうやら{role_name}の機嫌が悪いらしい: `{finishReasons[finishReason]}`"
+                embed = discord.Embed(description=text, color=role_info["博麗霊夢"]['color'])
+                await message.reply(text)
+            text = jsonData.get("candidates", [])[0].get("content",{}).get("parts", [])[0].get("text", "機嫌が悪いっぽい、もう一度やってみて")
             
-        chat_rooms[message.author.id].append(
-            {"role": "model", "content": text}
-        )
+            chat_rooms[message.author.id].append(
+                {"role": "model", "content": text}
+            )
         
-        embed = discord.Embed(title="", description=text, color=role_info["博麗霊夢"]['color'])
-        await message.reply(embed=embed)
+            embed = discord.Embed(title="", description=text, color=role_info["博麗霊夢"]['color'])
+            await message.reply(embed=embed)
 
-        conn = await asyncpg.connect(os.getenv("dsn"))
-        await conn.execute('INSERT INTO chat_rooms (id, data) VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data', message.author.id, json.dumps(chat_rooms[message.author.id]))
-        await conn.close()
+            conn = await asyncpg.connect(os.getenv("dsn"))
+            await conn.execute('INSERT INTO chat_rooms (id, data) VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data', message.author.id, json.dumps(chat_rooms[message.author.id]))
+            await conn.close()
+        except Exception as e:
+            chat_rooms[message.author.id].pop()
+            text = f"どうやら{role_name}の機嫌が悪いらしい: `{e}`"
+            embed = discord.Embed(description=text, color=role_info["博麗霊夢"]['color'])
+            await message.reply(text)
 
 @client.event
 async def on_message(message: discord.Message):
@@ -430,6 +436,7 @@ async def gemini_combo(*, model: str, messages: list):
             json=data,
             headers=headers,
         ) as response:
+            print(await response.text())
             return {
                 "content": await response.json(),
                 "status": response.status
