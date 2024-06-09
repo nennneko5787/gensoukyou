@@ -69,15 +69,23 @@ role_info = {
     "ルーミア": {
         'color': discord.Colour.from_rgb(238, 187, 68),
         "icon": "https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th060-010101.png",
+    },
+    "西行寺幽々子": {
+        'color': discord.Colour.from_rgb(228, 115, 193),
+        'icon': "https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th070-060101.png",
+    },
+    "古明地こいし": {
+        'color': discord.Colour.from_rgb(148, 197, 144),
+        'icon': "https://s3.ap-northeast-1.amazonaws.com/duno.jp/icons/th110-070101.png",
     }
 }
 
 finishReasons = {
-    "FINISH_REASON_UNSPECIFIED": "不明なエラー。報告不要です。",
-    "STOP": "不明なエラー。報告をお願いします。",
-    "MAX_TOKENS": "トークンが限界突破しました。報告不要です。",
-    "SAFETY": "エロすぎます。",
-    "RECITATION": "本当に機嫌が悪いのか...? もう一度話しかけてみてください。",
+    "FINISH_REASON_UNSPECIFIED": "不明なエラー。",
+    "STOP": "正常な終了。",
+    "MAX_TOKENS": "トークンが限界突破しました。こりゃあ大変だ。",
+    "SAFETY": "エロすぎます。もうちょっとエロ要素をなくしてください。",
+    "RECITATION": "人見知りのようです。もう一度話しかけてみてください。",
     "OTHER": "なぜなんだ...?"
 }
 
