@@ -13,6 +13,7 @@ import asyncpg
 import aiohttp
 from enum import Enum
 import json
+import base64
 
 chat_rooms = defaultdict(list)
 
@@ -218,8 +219,28 @@ async def handle_message(message: discord.Message, role_name: str):
             "返答にはMarkdown記法を使うことができます。"
 
     async with message.channel.typing():
+        inline = []
+
+        for file in message.attachments:
+            if file.content_type is None:
+                continue
+            data = await file.read()
+            base64_data = base64.b64encode(data).decode('utf-8')
+            inline.append(
+                {
+                    "inlineData": {
+                        "mimeType": file.content_type,
+                        "data": base64_data,
+                    }
+                }
+            )
+
         chat_rooms[message.author.id].append(
-            {"role": "user", "content": prompt}
+            {
+                "role": "user",
+                "content": prompt,
+                "inlineDatas": inline
+            }
         )
         response = await gemini_combo(
             model="gemini-1.0-pro",
@@ -262,8 +283,28 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
             "返答にはMarkdown記法を使うことができます。"
 
     async with message.channel.typing():
+        inline = []
+
+        for file in message.attachments:
+            if file.content_type is None:
+                continue
+            data = await file.read()
+            base64_data = base64.b64encode(data).decode('utf-8')
+            inline.append(
+                {
+                    "inlineData": {
+                        "mimeType": file.content_type,
+                        "data": base64_data,
+                    }
+                }
+            )
+
         chat_rooms[message.author.id].append(
-            {"role": "user", "content": prompt}
+            {
+                "role": "user",
+                "content": prompt,
+                "inlineDatas": inline
+            }
         )
         response = await gemini_combo(
             model="gemini-1.0-pro",
@@ -342,12 +383,18 @@ async def gemini_combo(*, model: str, messages: list):
     ]
     gemini_messages: list = []
     for message in messages:
+        files = [],
+        for file in message.get("inlineDatas", ""):
+            files.append(
+                file
+            )
         gemini_messages.append(
             {
                 "parts": [
                     {
                         "text": message.get("content", ""),
-                    }
+                    },
+                    files,
                 ],
                 "role": message.get("role", "")
             }
