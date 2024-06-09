@@ -69,4 +69,8 @@ Discord: `nennneko5787`
 Email address: `nekostudio (at) 14chan (dot) jp`  
 (at) を @ 、 (dot) を . に置き換えてください。
 
+  
+2024/06/09 プライバシーポリシー制定   
+  
+
 以上

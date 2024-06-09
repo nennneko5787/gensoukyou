@@ -201,6 +201,14 @@ async def characters(interaction: discord.Interaction):
 async def chat_clean(interaction: discord.Interaction):
     await interaction.response.send_message("https://discord.gg/D577rtaya5", ephemeral=True)
 
+@tree.command(name="tos", description="利用規約を表示します。")
+async def chat_clean(interaction: discord.Interaction):
+    await interaction.response.send_message("https://gensoukyou.f5.si/tos.html", ephemeral=True)
+
+@tree.command(name="privacy", description="プライバシーポリシーを表示します。")
+async def chat_clean(interaction: discord.Interaction):
+    await interaction.response.send_message("https://gensoukyou.f5.si/privacy.html", ephemeral=True)
+
 async def handle_message(message: discord.Message, role_name: str):
     prompt = f"あなたは、幻想郷に住んでいる、{role_name}です。"\
             f"私の名前は{message.author.display_name}です。"\
