@@ -383,7 +383,7 @@ async def gemini_combo(*, model: str, messages: list):
     ]
     gemini_messages: list = []
     for message in messages:
-        files = [],
+        files = []
         for file in message.get("inlineDatas", ""):
             files.append(
                 file
