@@ -258,12 +258,12 @@ async def handle_message(message: discord.Message, role_name: str):
         status = response.get("status", 0)
         finishReason = jsonData.get("candidates", [])[0].get("finishReason")
         if status != 200:
-            chat_rooms[message.author.id] = chat_rooms[message.author.id].pop()
+            chat_rooms[message.author.id].pop()
             text = f"どうやら{role_name}の機嫌が悪いらしい: `HTTP {status}`"
             embed = discord.Embed(description=text, color=role_info[role_name]['color'])
             await message.reply(text)
         if finishReason != "STOP":
-            chat_rooms[message.author.id] = chat_rooms[message.author.id].pop()
+            chat_rooms[message.author.id].pop()
             text = f"どうやら{role_name}の機嫌が悪いらしい: `{finishReasons[finishReason]}`"
             embed = discord.Embed(description=text, color=role_info[role_name]['color'])
             await message.reply(text)
@@ -322,12 +322,12 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
         status = response.get("status", 0)
         finishReason = jsonData.get("candidates", [])[0].get("finishReason")
         if status != 200:
-            chat_rooms[message.author.id] = chat_rooms[message.author.id].pop()
+            chat_rooms[message.author.id].pop()
             text = f"どうやら{role_name}の機嫌が悪いらしい: `HTTP {status}`"
             embed = discord.Embed(description=text, color=role_info["博麗霊夢"]['color'])
             await message.reply(text)
         if finishReason != "STOP":
-            chat_rooms[message.author.id] = chat_rooms[message.author.id].pop()
+            chat_rooms[message.author.id].pop()
             text = f"どうやら{role_name}の機嫌が悪いらしい: `{finishReasons[finishReason]}`"
             embed = discord.Embed(description=text, color=role_info["博麗霊夢"]['color'])
             await message.reply(text)
