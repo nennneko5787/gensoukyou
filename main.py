@@ -243,7 +243,7 @@ async def handle_message(message: discord.Message, role_name: str):
             }
         )
         response = await gemini_combo(
-            model="gemini-1.0-pro",
+            model="gemini-1.5-flash",
             messages=chat_rooms[message.author.id],
         )
         jsonData = response.get("content", {})
@@ -307,7 +307,7 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
             }
         )
         response = await gemini_combo(
-            model="gemini-1.0-pro",
+            model="gemini-1.5-flash",
             messages=chat_rooms[message.author.id],
         )
         jsonData = response.get("content", {})
