@@ -266,7 +266,7 @@ async def handle_message(message: discord.Message, role_name: str):
             finishReason = jsonData.get("candidates", [])[0].get("finishReason")
         except:
             chat_rooms[message.author.id].pop()
-            text = f"どうやら{role_name}の機嫌が悪いらしい: `{finishReasons[finishReason]}`"
+            text = f"どうやら{role_name}の機嫌が悪いらしい: `{jsonData}`"
             embed = discord.Embed(description=text, color=role_info[role_name]['color'])
             await message.reply(text)
             return
