@@ -404,7 +404,7 @@ async def gemini_combo(*, model: str, messages: list, prompt: str):
     ]
     systemInstruction = {
         "parts": [
-            "text": prompt,
+            {"text": prompt},
         ],
         "role": "user",
     }
@@ -412,15 +412,11 @@ async def gemini_combo(*, model: str, messages: list, prompt: str):
     for message in messages:
         files = []
         for file in message.get("inlineDatas", ""):
-            files.append(
-                file
-            )
+            files.append(file)
         gemini_messages.append(
             {
                 "parts": [
-                    {
-                        "text": message.get("content", ""),
-                    },
+                    {"text": message.get("content", "")},
                     files,
                 ],
                 "role": message.get("role", "")
@@ -436,6 +432,7 @@ async def gemini_combo(*, model: str, messages: list, prompt: str):
             "top_k": 64,
             "max_output_tokens": 8192,
         },
+        "systemInstruction": systemInstruction,
     }
 
     headers = {
