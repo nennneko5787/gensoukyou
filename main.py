@@ -221,7 +221,7 @@ async def chat_clean(interaction: discord.Interaction):
 async def handle_message(message: discord.Message, role_name: str):
     prompt = f"あなたは、幻想郷に住んでいる、{role_name}です。"\
             f"私の名前は{message.author.display_name}です。"\
-            f"私はあなたに「{message.clean_content}」と話しました。"\
+            #f"私はあなたに「{message.clean_content}」と話しました。"\
             f"あなたは{role_name}なので、{role_name}のように出力してください。"\
             "日本語で出力してください。人と話すときと同じように出力してください。文法的に誤りのある文は認められません。"\
             "返答にはMarkdown記法を使うことができます。"
@@ -246,13 +246,14 @@ async def handle_message(message: discord.Message, role_name: str):
         chat_rooms[message.author.id].append(
             {
                 "role": "user",
-                "content": prompt,
+                "content": message.clean_content,
                 "inlineDatas": inline
             }
         )
         response = await gemini_combo(
             model="gemini-1.5-flash",
             messages=chat_rooms[message.author.id],
+            prompt=prompt
         )
         jsonData = response.get("content", {})
         status = response.get("status", 0)
@@ -294,7 +295,7 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
     prompt = f"あなた達は、幻想郷に住んでいる、{role_name}です。"\
             f"私の名前は{message.author.display_name}です。"\
             f"私はあなた達に「{message.clean_content}」と話しました。"\
-            f"あなたは{role_name}なので、{role_name}のように出力してください。"\
+            #f"あなたは{role_name}なので、{role_name}のように出力してください。"\
             "**<人名>**:\n> <内容> という感じに出力してください。"\
             "日本語で出力してください。人と話すときと同じように出力してください。文法的に誤りのある文は認められません。"\
             "返答にはMarkdown記法を使うことができます。"
@@ -319,13 +320,14 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
         chat_rooms[message.author.id].append(
             {
                 "role": "user",
-                "content": prompt,
+                "content": message.clean_content,
                 "inlineDatas": inline
             }
         )
         response = await gemini_combo(
             model="gemini-1.5-flash",
             messages=chat_rooms[message.author.id],
+            prompt=prompt
         )
         jsonData = response.get("content", {})
         status = response.get("status", 0)
@@ -383,7 +385,7 @@ async def on_message(message: discord.Message):
                     if message.reference.resolved.embeds[0].author.name in list(role_info.keys()):
                         await handle_message(message, message.reference.resolved.embeds[0].author.name)
 
-async def gemini_combo(*, model: str, messages: list):
+async def gemini_combo(*, model: str, messages: list, prompt: str):
     safetySettings: list = [
         {
             "category": "HARM_CATEGORY_HARASSMENT",
@@ -402,6 +404,12 @@ async def gemini_combo(*, model: str, messages: list):
             "threshold": "BLOCK_NONE"
         }
     ]
+    systemInstruction = {
+        "parts": [
+            "text": prompt
+        ],
+        "role": "user"
+    }
     gemini_messages: list = []
     for message in messages:
         files = []
