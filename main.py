@@ -439,14 +439,17 @@ async def gemini_combo(*, model: str, messages: list):
 
     async with aiohttp.ClientSession() as session:
         async with session.post(
-            f'https://generativelanguage.googleapis.com/v1/models/{model}:generateContent?key={random.choice(api_keys)}',
+            f'https://generativelanguage.googleapis.com/v1/models/{model}:streamGenerateContent?key={random.choice(api_keys)}',
             json=data,
             headers=headers,
-        ) as response:
-            print(await response.text())
+        ) as r:
+            res = ""
+            async for line in r.content:
+                res = f"{res}{line}"
+            data = json.loads(res)
             return {
-                "content": await response.json(),
-                "status": response.status
+                "content": data,
+                "status": r.status
             }
 
 keep_alive()
