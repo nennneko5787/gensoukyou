@@ -404,9 +404,9 @@ async def gemini_combo(*, model: str, messages: list, prompt: str):
     ]
     systemInstruction = {
         "parts": [
-            "text": prompt
+            "text": prompt,
         ],
-        "role": "user"
+        "role": "user",
     }
     gemini_messages: list = []
     for message in messages:
