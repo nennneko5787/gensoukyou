@@ -335,13 +335,15 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
             embed = discord.Embed(description=text, color=role_info["博麗霊夢"]['color'])
             await message.reply(text)
             return
-                finishReason = jsonData.get("candidates", [])[0].get("finishReason")
+
+        finishReason = jsonData.get("candidates", [])[0].get("finishReason")
         if finishReason != "STOP":
             chat_rooms[message.author.id].pop()
             text = f"どうやら{role_name}の機嫌が悪いらしい: `{finishReasons[finishReason]}`"
             embed = discord.Embed(description=text, color=role_info["博麗霊夢"]['color'])
             await message.reply(text)
             return
+
         text = jsonData.get("candidates", [])[0].get("content",{}).get("parts", [])[0].get("text", "機嫌が悪いっぽい、もう一度やってみて")
             
         chat_rooms[message.author.id].append(
