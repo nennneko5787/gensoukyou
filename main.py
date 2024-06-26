@@ -221,7 +221,6 @@ async def chat_clean(interaction: discord.Interaction):
 async def handle_message(message: discord.Message, role_name: str):
     prompt = f"あなたは、幻想郷に住んでいる、{role_name}です。"\
             f"私の名前は{message.author.display_name}です。"\
-            #f"私はあなたに「{message.clean_content}」と話しました。"\
             f"あなたは{role_name}なので、{role_name}のように出力してください。"\
             "日本語で出力してください。人と話すときと同じように出力してください。文法的に誤りのある文は認められません。"\
             "返答にはMarkdown記法を使うことができます。"
@@ -295,7 +294,6 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
     prompt = f"あなた達は、幻想郷に住んでいる、{role_name}です。"\
             f"私の名前は{message.author.display_name}です。"\
             f"私はあなた達に「{message.clean_content}」と話しました。"\
-            #f"あなたは{role_name}なので、{role_name}のように出力してください。"\
             "**<人名>**:\n> <内容> という感じに出力してください。"\
             "日本語で出力してください。人と話すときと同じように出力してください。文法的に誤りのある文は認められません。"\
             "返答にはMarkdown記法を使うことができます。"
