@@ -219,12 +219,19 @@ async def chat_clean(interaction: discord.Interaction):
     await interaction.response.send_message("https://gensoukyou.f5.si/privacy.html", ephemeral=True)
 
 async def handle_message(message: discord.Message, role_name: str):
+    """
+    メッセージを送信
+    """
+    
+    """
     prompt = f"あなたは、幻想郷に住んでいる、{role_name}です。"\
             f"私の名前は{message.author.display_name}です。"\
             f"私はあなたに「{message.clean_content}」と話しました。"\
             f"あなたは{role_name}なので、{role_name}のように出力してください。"\
             "日本語で出力してください。人と話すときと同じように出力してください。文法的に誤りのある文は認められません。"\
             "返答にはMarkdown記法を使うことができます。"
+    """
+    prompt = f"こんにちは。私は「{message.author.display_name}」です。私は「{message.clean_content}」と話しました。あなたは、幻想郷というところに住んでいる「{role_name}」というキャラクターになりきって話してください。なお、AIとしての感情は出さないでください。"
 
     async with message.channel.typing():
         inline = []
@@ -264,15 +271,15 @@ async def handle_message(message: discord.Message, role_name: str):
             return
         try:
             finishReason = jsonData.get("candidates", [])[0].get("finishReason")
+            if finishReason != "STOP":
+                chat_rooms[message.author.id].pop()
+                text = f"どうやら{role_name}の機嫌が悪いらしい: `{finishReasons[finishReason]}`"
+                embed = discord.Embed(description=text, color=role_info[role_name]['color'])
+                await message.reply(text)
+                return
         except:
             chat_rooms[message.author.id].pop()
             text = f"どうやら{role_name}の機嫌が悪いらしい: `{jsonData}`"
-            embed = discord.Embed(description=text, color=role_info[role_name]['color'])
-            await message.reply(text)
-            return
-        if finishReason != "STOP":
-            chat_rooms[message.author.id].pop()
-            text = f"どうやら{role_name}の機嫌が悪いらしい: `{finishReasons[finishReason]}`"
             embed = discord.Embed(description=text, color=role_info[role_name]['color'])
             await message.reply(text)
             return
@@ -291,6 +298,11 @@ async def handle_message(message: discord.Message, role_name: str):
         await conn.close()
 
 async def handle_message_fukusuu(message: discord.Message, role_name: str):
+    """
+    複数
+    """
+
+    """
     prompt = f"あなた達は、幻想郷に住んでいる、{role_name}です。"\
             f"私の名前は{message.author.display_name}です。"\
             f"私はあなた達に「{message.clean_content}」と話しました。"\
@@ -298,6 +310,9 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
             "**<人名>**:\n> <内容> という感じに出力してください。"\
             "日本語で出力してください。人と話すときと同じように出力してください。文法的に誤りのある文は認められません。"\
             "返答にはMarkdown記法を使うことができます。"
+    """
+
+    prompt = f"こんにちは。私は「{message.author.display_name}」です。私は「{message.clean_content}」と話しました。あなた達は、幻想郷というところに住んでいる{role_name}というキャラクターにそれぞれなりきって話してください。**<人名>**:\n> <内容> というフォーマットで出力してください。なお、AIとしての感情は出さないでください。"
 
     async with message.channel.typing():
         inline = []
@@ -336,11 +351,18 @@ async def handle_message_fukusuu(message: discord.Message, role_name: str):
             await message.reply(text)
             return
 
-        finishReason = jsonData.get("candidates", [])[0].get("finishReason")
-        if finishReason != "STOP":
+        try:
+            finishReason = jsonData.get("candidates", [])[0].get("finishReason")
+            if finishReason != "STOP":
+                chat_rooms[message.author.id].pop()
+                text = f"どうやら{role_name}の機嫌が悪いらしい: `{finishReasons[finishReason]}`"
+                embed = discord.Embed(description=text, color=role_info[role_name]['color'])
+                await message.reply(text)
+                return
+        except:
             chat_rooms[message.author.id].pop()
-            text = f"どうやら{role_name}の機嫌が悪いらしい: `{finishReasons[finishReason]}`"
-            embed = discord.Embed(description=text, color=role_info["博麗霊夢"]['color'])
+            text = f"どうやら{role_name}の機嫌が悪いらしい: `{jsonData}`"
+            embed = discord.Embed(description=text, color=role_info[role_name]['color'])
             await message.reply(text)
             return
 
