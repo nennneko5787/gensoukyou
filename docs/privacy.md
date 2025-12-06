@@ -65,11 +65,12 @@ NekoStudio（以下，「当団体」といいます。）は，本Discordボッ
 
 ## 第10条（お問い合わせ窓口）
 本ポリシーに関するお問い合わせは，下記の連絡先までお願いします。  
-Discord: `nennneko5787`  
-Email address: `nekostudio (at) 14chan (dot) jp`  
+Discord: `pjcd`  
+Email address: `h4369 (at) nennneko5787 (dot) net`  
 (at) を @ 、 (dot) を . に置き換えてください。
 
-  
+
+2025/12/06 Discordのユーザーネームとメールアドレスを変更したため修正  
 2024/06/09 プライバシーポリシー制定   
   
 
